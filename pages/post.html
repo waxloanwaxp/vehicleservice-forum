@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>รายละเอียดกระทู้ - VehicleService Forum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <script type="importmap" src="/importmap.json"></script>
+</head>
+<body>
+  <div id="app">
+    <header id="site-header"></header>
+
+    <main id="main-content">
+      <div class="container">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb" aria-label="เส้นทาง" style="margin: var(--space-4) 0;">
+          <ol style="display: flex; flex-wrap: wrap; gap: var(--space-2); font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+            <li><a href="/" style="color: var(--color-text-secondary);">หน้าแรก</a></li>
+            <li aria-hidden="true">/</li>
+            <li><a href="/pages/browse.html" style="color: var(--color-text-secondary);">ดูบริการ</a></li>
+            <li aria-hidden="true">/</li>
+            <li aria-current="page" id="breadcrumb-title" style="color: var(--color-text);">โหลด중...</li>
+          </ol>
+        </nav>
+
+        <div class="post-detail-grid">
+          <!-- Main Content -->
+          <article class="post-main">
+            <header class="post-header">
+              <div class="post-meta">
+                <span class="post-category" id="post-category">-</span>
+                <span class="post-urgency" id="post-urgency">-</span>
+                <span class="post-status" id="post-status">-</span>
+              </div>
+              <h1 class="post-title" id="post-title">โหลดข้อมูล...</h1>
+              <div class="post-author">
+                <div class="author-info">
+                  <span class="author-avatar" id="author-avatar">U</span>
+                  <div>
+                    <div class="author-name" id="author-name">-</div>
+                    <div class="author-location" id="author-location">-</div>
+                  </div>
+                </div>
+                <div class="post-date" id="post-date">-</div>
+              </div>
+            </header>
+
+            <!-- Images Gallery -->
+            <div class="post-gallery" id="post-gallery" style="display: none;"></div>
+
+            <!-- Description -->
+            <div class="post-description">
+              <div class="markdown-content" id="post-description">-</div>
+            </div>
+
+            <!-- Budget Info -->
+            <div class="post-budget" id="post-budget" style="display: none;">
+              <h3>งบประมาณที่คาดการณ์</h3>
+              <div class="budget-range">
+                <span id="budget-min">-</span>
+                <span>ถึง</span>
+                <span id="budget-max">-</span>
+              </div>
+            </div>
+
+            <!-- Vehicle/Service Details -->
+            <div class="post-details" id="post-details"></div>
+
+            <!-- Contact Info (shown after bid accepted) -->
+            <div class="post-contact" id="post-contact" style="display: none;">
+              <h3>ข้อมูลติดต่อผู้โพสต์</h3>
+              <div class="contact-info" id="contact-info"></div>
+            </div>
+          </article>
+
+          <!-- Sidebar: Bids -->
+          <aside class="post-sidebar">
+            <div class="sidebar-card bids-panel">
+              <div class="panel-header">
+                <h2>ใบเสนอราคา</h2>
+                <span class="badge badge-primary" id="bid-count">0</span>
+              </div>
+
+              <!-- Bid Form (for providers) -->
+              <div class="bid-form-container" id="bid-form-container" style="display: none;">
+                <form id="bid-form" class="bid-form">
+                  <div class="form-group">
+                    <label class="form-label" for="bid_price">ราคาที่เสนอ (บาท) <span class="required">*</span></label>
+                    <input type="number" id="bid_price" name="bid_price" class="form-input" placeholder="เช่น 5000" required min="1" step="100">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="bid_message">ข้อความแนบ <span class="required">*</span></label>
+                    <textarea id="bid_message" name="bid_message" class="form-textarea" placeholder="อธิบายบริการ ประสบการณ์ วิธีการทำงาน ฯล฿" required rows="4"></textarea>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="bid_timeline">ระยะเวลาประมาณการ (วัน)</label>
+                    <input type="number" id="bid_timeline" name="bid_timeline" class="form-input" placeholder="เช่น 3" min="1" max="365">
+                  </div>
+
+                  <button type="submit" class="btn btn-primary btn-block">ส่งใบเสนอราคา</button>
+                </form>
+              </div>
+
+              <!-- Login Prompt (for non-providers) -->
+              <div class="bid-login-prompt" id="bid-login-prompt" style="display: none;">
+                <p>คุณต้องเป็น <strong>ผู้ให้บริการ</strong> และเข้าสู่ระบบจึงจะเสนอราคาได้</p>
+                <div style="display: flex; gap: var(--space-2); margin-top: var(--space-3);">
+                  <a href="/pages/login.html?redirect=" class="btn btn-primary btn-block" id="bid-login-btn">เข้าสู่ระบบ</a>
+                  <a href="/pages/register.html?role=provider" class="btn btn-outline btn-block">สมัครเป็นผู้ให้บริการ</a>
+                </div>
+              </div>
+
+              <!-- Already Bid Message -->
+              <div class="bid-already" id="bid-already" style="display: none;">
+                <div class="alert alert-info">
+                  <div class="alert-content">
+                    <div class="alert-title">คุณได้เสนอราคาแล้ว</div>
+                    <div class="alert-message">คุณสามารถแก้ไขหรือถอนใบเสนอราคาได้ด้านล่าง</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bids List -->
+              <div class="bids-list" id="bids-list">
+                <!-- Bids will be loaded here -->
+              </div>
+
+              <!-- No Bids -->
+              <div class="no-bids" id="no-bids" style="display: none;">
+                <div class="empty-state" style="padding: var(--space-6);">
+                  <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 48px; height: 48px;">
+                    <path d="M21 15V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v10"></path>
+                    <path d="M3 19h18"></path>
+                    <path d="M7 19v-6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v6"></path>
+                  </svg>
+                  <p class="empty-state-message">ยังไม่มีใบเสนอราคา</p>
+                  <p class="empty-state-message" style="font-size: var(--font-size-sm); margin-top: var(--space-1);">รอผู้ให้บริการสนใจ...</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons (for post owner) -->
+            <div class="sidebar-card owner-actions" id="owner-actions" style="display: none;">
+              <h3>จัดการกระทู้</h3>
+              <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+                <button class="btn btn-secondary" id="edit-post-btn">แก้ไขกระทู้</button>
+                <button class="btn btn-danger" id="cancel-post-btn">ยกเลิกกระทู้</button>
+                <button class="btn btn-primary" id="complete-post-btn" style="display: none;">ทำเครื่องหมายเสร็จสิ้น</button>
+              </div>
+            </div>
+
+            <!-- Post Info -->
+            <div class="sidebar-card post-info">
+              <h3>รายละเอียดเพิ่มเติม</h3>
+              <dl class="info-list" id="info-list"></dl>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <footer id="site-footer"></footer>
+  </div>
+
+  <script type="module">
+    import { initAuth, supabase, showToast, formatTHB, formatRelativeTime, formatDisplayDate, escapeHtml, VEHICLE_TYPES, SERVICE_TYPES, URGENCY_LEVELS, POST_STATUS, BID_STATUS, isAuthenticated, isProvider, getCurrentUser, onAuthChange, confirmDialog } from '/js/auth.js';
+    import { marked } from 'marked';
+    import DOMPurify from 'dompurify';
+
+    let postId = null;
+    let postData = null;
+    let currentUserBid = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initAuth();
+
+      // Load shared components
+      const [headerRes, footerRes] = await Promise.all([
+        fetch('/header.html'),
+        fetch('/footer.html')
+      ]);
+      document.getElementById('site-header').innerHTML = await headerRes.text();
+      document.getElementById('site-footer').innerHTML = await footerRes.text();
+
+      // Get post ID from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      postId = urlParams.get('id');
+
+      if (!postId) {
+        showToast('ไม่พบรหัสกระทู้', 'error');
+        setTimeout(() => window.location.href = '/pages/browse.html', 2000);
+        return;
+      }
+
+      await loadPost();
+      setupRealtime();
+
+      // Listen for auth changes to update bid form visibility
+      onAuthChange(updateBidFormVisibility);
+    });
+
+    async function loadPost() {
+      try {
+        const { data: post, error } = await supabase
+          .from('posts')
+          .select(`
+            *,
+            user_profiles!inner(full_name, avatar_url, phone, line_id, province, district, subdistrict, role),
+            bids(
+              *,
+              user_profiles!inner(full_name, avatar_url, phone, line_id)
+            )
+          `)
+          .eq('id', postId)
+          .single();
+
+        if (error) throw error;
+        if (!post) throw new Error('ไม่พบกระทู้');
+
+        postData = post;
+
+        // Sort bids by created_at
+        if (post.bids) {
+          post.bids.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        }
+
+        renderPost(post);
+
+        // Check if current user has a bid
+        const user = getCurrentUser();
+        if (user && post.bids) {
+          currentUserBid = post.bids.find(b => b.user_id === user.id);
+        }
+
+        updateBidFormVisibility();
+        renderBids(post.bids || []);
+        updateOwnerActions(post);
+      } catch (err) {
+        console.error('Load post error:', err);
+        showToast(err.message, 'error');
+        setTimeout(() => window.location.href = '/pages/browse.html', 2000);
+      }
+    }
+
+    function renderPost(post) {
+      const vehicle = VEHICLE_TYPES.find(v => v.id === post.vehicle_type) || { name: post.vehicle_type };
+      const service = SERVICE_TYPES.find(s => s.id === post.service_type) || { name: post.service_type };
+      const urgency = URGENCY_LEVELS.find(u => u.id === post.urgency) || { name: post.urgency, color: 'var(--color-info)' };
+      const statusLabel = getStatusLabel(post.status);
+      const author = post.user_profiles;
+
+      // Breadcrumb
+      document.getElementById('breadcrumb-title').textContent = post.title;
+
+      // Category
+      document.getElementById('post-category').innerHTML = `
+        <span class="post-card-category">${vehicle.name} • ${service.name}</span>
+      `;
+
+      // Urgency
+      document.getElementById('post-urgency').innerHTML = `
+        <span class="badge" style="background: ${urgency.color}; color: white;">${urgency.name}</span>
+      `;
+
+      // Status
+      document.getElementById('post-status').innerHTML = `
+        <span class="badge badge-${getStatusBadgeClass(post.status)}">${statusLabel}</span>
+      `;
+
+      // Title
+      document.getElementById('post-title').textContent = post.title;
+
+      // Author
+      document.getElementById('author-avatar').textContent = author?.full_name?.[0]?.toUpperCase() || 'U';
+      document.getElementById('author-name').textContent = author?.full_name || 'ไม่ระบุชื่อ';
+      document.getElementById('author-location').textContent = author?.district
+        ? `${author.district}, ${author.province}`
+        : author?.province || 'ไม่ระบุที่ตั้ง';
+      document.getElementById('post-date').textContent = `โพสต์เมื่อ ${formatDisplayDate(post.created_at)}`;
+
+      // Gallery
+      renderGallery(post.images || []);
+
+      // Description
+      document.getElementById('post-description').innerHTML =
+        DOMPurify.sanitize(marked.parse(post.description || ''));
+
+      // Budget
+      if (post.budget_min || post.budget_max) {
+        document.getElementById('post-budget').style.display = 'block';
+        document.getElementById('budget-min').textContent = post.budget_min ? formatTHB(post.budget_min) : 'ไม่ระบุ';
+        document.getElementById('budget-max').textContent = post.budget_max ? formatTHB(post.budget_max) : 'ไม่ระบุ';
+      }
+
+      // Details
+      renderDetails(post);
+
+      // Contact info (hidden until bid accepted)
+      if (post.status === 'in_progress' || post.status === 'completed') {
+        renderContactInfo(post);
+      }
+
+      // Info list
+      renderInfoList(post);
+    }
+
+    function renderGallery(images) {
+      const gallery = document.getElementById('post-gallery');
+      if (images.length === 0) {
+        gallery.style.display = 'none';
+        return;
+      }
+
+      gallery.style.display = 'block';
+      gallery.innerHTML = `
+        <div class="gallery-main">
+          <img src="${images[0]}" alt="รูปภาพหลัก" id="main-image">
+        </div>
+        ${images.length > 1 ? `
+          <div class="gallery-thumbs" role="group" aria-label="ภาพถ่ายเพิ่มเติม">
+            ${images.map((img, i) => `
+              <button class="gallery-thumb ${i === 0 ? 'active' : ''}" data-index="${i}" aria-label="ดูภาพที่ ${i + 1}">
+                <img src="${img}" alt="ภาพที่ ${i + 1}" loading="lazy">
+              </button>
+            `).join('')}
+          </div>
+        ` : ''}
+      `;
+
+      // Thumbnail click handler
+      gallery.querySelectorAll('.gallery-thumb').forEach(thumb => {
+        thumb.addEventListener('click', () => {
+          const idx = parseInt(thumb.dataset.index);
+          document.getElementById('main-image').src = images[idx];
+          gallery.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+          thumb.classList.add('active');
+        });
+      });
+    }
+
+    function renderDetails(post) {
+      const vehicle = VEHICLE_TYPES.find(v => v.id === post.vehicle_type) || { name: post.vehicle_type };
+      const service = SERVICE_TYPES.find(s => s.id === post.service_type) || { name: post.service_type };
+      const urgency = URGENCY_LEVELS.find(u => u.id === post.urgency) || { name: post.urgency };
+
+      const details = document.getElementById('post-details');
+      details.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-item">
+            <dt>ประเภทยานพาหนะ</dt>
+            <dd>${vehicle.name}</dd>
+          </div>
+          <div class="detail-item">
+            <dt>ประเภทบริการ</dt>
+            <dd>${service.name}</dd>
+          </div>
+          <div class="detail-item">
+            <dt>ความเร่งด่วน</dt>
+            <dd><span class="badge" style="background: ${urgency.color}; color: white;">${urgency.name}</span></dd>
+          </div>
+          <div class="detail-item">
+            <dt>สถานะ</dt>
+            <dd><span class="badge badge-${getStatusBadgeClass(post.status)}">${getStatusLabel(post.status)}</span></dd>
+          </div>
+          ${post.brand ? `<div class="detail-item"><dt>ยี่ห้อ/รุ่น</dt><dd>${escapeHtml(post.brand)}</dd></div>` : ''}
+          ${post.year ? `<div class="detail-item"><dt>ปีที่ผลิต</dt><dd>${post.year}</dd></div>` : ''}
+          ${post.mileage ? `<div class="detail-item"><dt>เลขไมล์</dt><dd>${post.mileage.toLocaleString()} กม.</dd></div>` : ''}
+          ${post.license_plate ? `<div class="detail-item"><dt>ทะเบียนรถ</dt><dd>${escapeHtml(post.license_plate)}</dd></div>` : ''}
+        </div>
+      `;
+    }
+
+    function renderContactInfo(post) {
+      const contact = document.getElementById('post-contact');
+      const info = document.getElementById('contact-info');
+      const author = post.user_profiles;
+
+      contact.style.display = 'block';
+      info.innerHTML = `
+        <div class="contact-item">
+          <span class="contact-label">ชื่อ</span>
+          <span class="contact-value">${escapeHtml(author?.full_name || '-')}</span>
+        </div>
+        ${author?.phone ? `
+          <div class="contact-item">
+            <span class="contact-label">โทรศัพท์</span>
+            <a href="tel:${author.phone}" class="contact-value">${escapeHtml(author.phone)}</a>
+          </div>
+        ` : ''}
+        ${author?.line_id ? `
+          <div class="contact-item">
+            <span class="contact-label">Line ID</span>
+            <span class="contact-value">${escapeHtml(author.line_id)}</span>
+          </div>
+        ` : ''}
+        <div class="contact-item">
+          <span class="contact-label">ที่ตั้ง</span>
+          <span class="contact-value">${author?.subdistrict ? `${author.subdistrict}, ` : ''}${author?.district ? `${author.district}, ` : ''}${author?.province || '-'}</span>
+        </div>
+      `;
+    }
+
+    function renderInfoList(post) {
+      const list = document.getElementById('info-list');
+      const author = post.user_profiles;
+
+      list.innerHTML = `
+        <div class="info-item">
+          <dt>ผู้โพสต์</dt>
+          <dd>${escapeHtml(author?.full_name || '-')} (${author?.role === 'provider' ? 'ผู้ให้บริการ' : 'ผู้ใช้ทั่วไป'})</dd>
+        </div>
+        <div class="info-item">
+          <dt>ที่ตั้ง</dt>
+          <dd>${author?.subdistrict ? `${author.subdistrict}, ` : ''}${author?.district ? `${author.district}, ` : ''}${author?.province || '-'}</dd>
+        </div>
+        <div class="info-item">
+          <dt>โพสต์เมื่อ</dt>
+          <dd>${formatDisplayDate(post.created_at)}</dd>
+        </div>
+        <div class="info-item">
+          <dt>อัปเดตล่าสุด</dt>
+          <dd>${formatDisplayDate(post.updated_at)}</dd>
+        </div>
+        <div class="info-item">
+          <dt>จำนวนใบเสนอราคา</dt>
+          <dd>${post.bids?.length || 0} ใบ</dd>
+        </div>
+      `;
+    }
+
+    function renderBids(bids) {
+      const list = document.getElementById('bids-list');
+      const noBids = document.getElementById('no-bids');
+      const bidCount = document.getElementById('bid-count');
+
+      bidCount.textContent = bids.length;
+
+      if (bids.length === 0) {
+        list.style.display = 'none';
+        noBids.style.display = 'block';
+        return;
+      }
+
+      list.style.display = 'block';
+      noBids.style.display = 'none';
+
+      const user = getCurrentUser();
+      const isOwner = user && postData.user_id === user.id;
+      const isAccepted = postData.status === 'in_progress' || postData.status === 'completed';
+
+      list.innerHTML = bids.map(bid => {
+        const bidder = bid.user_profiles;
+        const isOwnBid = user && bid.user_id === user.id;
+        const isAcceptedBid = bid.status === 'accepted';
+        const canAccept = isOwner && bid.status === 'pending' && !isAccepted;
+        const canWithdraw = isOwnBid && bid.status === 'pending';
+
+        return `
+          <article class="bid-card ${isAcceptedBid ? 'accepted' : ''} ${isOwnBid ? 'own' : ''}" data-bid-id="${bid.id}">
+            <div class="bid-header">
+              <div class="bidder-info">
+                <span class="bidder-avatar">${bidder?.full_name?.[0]?.toUpperCase() || 'U'}</span>
+                <div>
+                  <div class="bidder-name">${escapeHtml(bidder?.full_name || 'ไม่ระบุชื่อ')}</div>
+                  <div class="bid-date">${formatRelativeTime(bid.created_at)}</div>
+                </div>
+              </div>
+              <div class="bid-status">
+                <span class="badge badge-${getBidStatusBadgeClass(bid.status)}">${getBidStatusLabel(bid.status)}</span>
+              </div>
+            </div>
+
+            <div class="bid-price">${formatTHB(bid.price)}</div>
+
+            <div class="bid-message markdown-content">${DOMPurify.sanitize(marked.parse(bid.message || ''))}</div>
+
+            ${bid.timeline ? `<div class="bid-timeline">ระยะเวลาประมาณ: ${bid.timeline} วัน</div>` : ''}
+
+            <div class="bid-actions">
+              ${canAccept ? `
+                <button class="btn btn-primary btn-sm accept-bid-btn" data-bid-id="${bid.id}">
+                  ยืนยันราคานี้
+                </button>
+              ` : ''}
+              ${canWithdraw ? `
+                <button class="btn btn-ghost btn-sm withdraw-bid-btn" data-bid-id="${bid.id}">
+                  ถอนใบเสนอราคา
+                </button>
+              ` : ''}
+              ${isAcceptedBid && isOwner ? `
+                <button class="btn btn-secondary btn-sm" disabled>ราคาที่ยอมรับ</button>
+              ` : ''}
+              ${isAcceptedBid && isOwnBid ? `
+                <span class="badge badge-success">ราคาของคุณถูกเลือกแล้ว!</span>
+              ` : ''}
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      // Event listeners for bid actions
+      list.querySelectorAll('.accept-bid-btn').forEach(btn => {
+        btn.addEventListener('click', () => acceptBid(btn.dataset.bidId));
+      });
+      list.querySelectorAll('.withdraw-bid-btn').forEach(btn => {
+        btn.addEventListener('click', () => withdrawBid(btn.dataset.bidId));
+      });
+    }
+
+    function updateBidFormVisibility() {
+      const container = document.getElementById('bid-form-container');
+      const prompt = document.getElementById('bid-login-prompt');
+      const already = document.getElementById('bid-already');
+
+      const user = getCurrentUser();
+      const isProv = isProvider();
+
+      if (!user) {
+        container.style.display = 'none';
+        prompt.style.display = 'block';
+        already.style.display = 'none';
+        document.getElementById('bid-login-btn').href = '/pages/login.html?redirect=' + encodeURIComponent(window.location.href);
+      } else if (!isProv) {
+        container.style.display = 'none';
+        prompt.style.display = 'block';
+        already.style.display = 'none';
+      } else if (currentUserBid) {
+        container.style.display = 'none';
+        prompt.style.display = 'none';
+        already.style.display = 'block';
+      } else {
+        container.style.display = 'block';
+        prompt.style.display = 'none';
+        already.style.display = 'none';
+
+        // Attach form submit handler
+        const form = document.getElementById('bid-form');
+        form.onsubmit = handleBidSubmit;
+      }
+    }
+
+    async function handleBidSubmit(e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+
+      const price = parseInt(form.bid_price.value);
+      const message = form.bid_message.value.trim();
+      const timeline = form.bid_timeline.value ? parseInt(form.bid_timeline.value) : null;
+
+      if (!price || price < 1) {
+        showToast('กรุณากรอกราคาที่เสนอ', 'error');
+        return;
+      }
+      if (!message) {
+        showToast('กรุณากรอกข้อความแนบ', 'error');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner spinner-sm"></span> กำลังส่ง...';
+
+      try {
+        const { error } = await supabase
+          .from('bids')
+          .insert({
+            post_id: postId,
+            user_id: getCurrentUser().id,
+            price,
+            message,
+            timeline,
+            status: 'pending'
+          });
+
+        if (error) throw error;
+
+        showToast('ส่งใบเสนอราคาสำเร็จ', 'success');
+        form.reset();
+        await loadPost(); // Reload to show the new bid
+      } catch (err) {
+        console.error('Bid error:', err);
+        showToast(err.message, 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    }
+
+    async function acceptBid(bidId) {
+      const confirmed = await confirmDialog(
+        'คุณแน่ใจหรือไม่ว่าต้องการยืนยันราคานี้? กระทู้จะเปลี่ยนสถานะเป็น "กำลังดำเนินการ" และใบเสนอราคาอื่นๆ จะถูกปฏิเสธอัตโนมัติ',
+        { title: 'ยืนยันราคา', danger: false }
+      );
+
+      if (!confirmed) return;
+
+      try {
+        // Use RPC or transaction to accept bid and update post status
+        const { error } = await supabase.rpc('accept_bid', {
+          p_bid_id: bidId,
+          p_post_id: postId,
+          p_user_id: getCurrentUser().id
+        });
+
+        if (error) throw error;
+
+        showToast('ยืนยันราคาสำเร็จ เปิดการแชทกับผู้ให้บริการ', 'success');
+        await loadPost();
+      } catch (err) {
+        console.error('Accept bid error:', err);
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function withdrawBid(bidId) {
+      const confirmed = await confirmDialog(
+        'คุณแน่ใจหรือไม่ว่าต้องการถอนใบเสนอราคานี้?',
+        { title: 'ถอนใบเสนอราคา', danger: true }
+      );
+
+      if (!confirmed) return;
+
+      try {
+        const { error } = await supabase
+          .from('bids')
+          .update({ status: 'withdrawn' })
+          .eq('id', bidId)
+          .eq('user_id', getCurrentUser().id);
+
+        if (error) throw error;
+
+        showToast('ถอนใบเสนอราคาสำเร็จ', 'success');
+        await loadPost();
+      } catch (err) {
+        console.error('Withdraw bid error:', err);
+        showToast(err.message, 'error');
+      }
+    }
+
+    function updateOwnerActions(post) {
+      const actions = document.getElementById('owner-actions');
+      const user = getCurrentUser();
+      const isOwner = user && post.user_id === user.id;
+
+      if (!isOwner) {
+        actions.style.display = 'none';
+        return;
+      }
+
+      actions.style.display = 'block';
+
+      // Show complete button if in progress
+      const completeBtn = document.getElementById('complete-post-btn');
+      if (post.status === 'in_progress') {
+        completeBtn.style.display = 'block';
+      }
+
+      // Event listeners
+      document.getElementById('edit-post-btn').onclick = () => {
+        window.location.href = `/pages/edit-post.html?id=${postId}`;
+      };
+      document.getElementById('cancel-post-btn').onclick = () => cancelPost();
+      if (completeBtn.style.display !== 'none') {
+        completeBtn.onclick = () => completePost();
+      }
+    }
+
+    async function cancelPost() {
+      const confirmed = await confirmDialog(
+        'การยกเลิกกระทู้จะไม่สามารถย้อนกลับได้ ใบเสนอราคาทั้งหมดจะถูกปฏิเสธ',
+        { title: 'ยกเลิกกระทู้', danger: true }
+      );
+
+      if (!confirmed) return;
+
+      try {
+        const { error } = await supabase
+          .from('posts')
+          .update({ status: 'cancelled' })
+          .eq('id', postId)
+          .eq('user_id', getCurrentUser().id);
+
+        if (error) throw error;
+
+        showToast('ยกเลิกกระทู้สำเร็จ', 'success');
+        setTimeout(() => window.location.href = '/pages/my-posts.html', 1000);
+      } catch (err) {
+        console.error('Cancel post error:', err);
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function completePost() {
+      const confirmed = await confirmDialog(
+        'ทำเครื่องหมายกระทู้ว่าเสร็จสิ้น? จะไม่สามารถย้อนกลับได้',
+        { title: 'เสร็จสิ้นงาน', danger: false }
+      );
+
+      if (!confirmed) return;
+
+      try {
+        const { error } = await supabase
+          .from('posts')
+          .update({ status: 'completed' })
+          .eq('id', postId)
+          .eq('user_id', getCurrentUser().id);
+
+        if (error) throw error;
+
+        showToast('ทำเครื่องหมายเสร็จสิ้นแล้ว', 'success');
+        await loadPost();
+      } catch (err) {
+        console.error('Complete post error:', err);
+        showToast(err.message, 'error');
+      }
+    }
+
+    function setupRealtime() {
+      // Subscribe to new bids on this post
+      const channel = supabase
+        .channel(`post:${postId}`)
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'bids',
+          filter: `post_id=eq.${postId}`
+        }, (payload) => {
+          console.log('New bid:', payload);
+          loadPost(); // Reload to show new bid
+          showToast('มีใบเสนอราคาใหม่!', 'info');
+        })
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'bids',
+          filter: `post_id=eq.${postId}`
+        }, () => {
+          loadPost(); // Reload on bid updates
+        })
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'posts',
+          filter: `id=eq.${postId}`
+        }, () => {
+          loadPost(); // Reload on post updates
+        })
+        .subscribe();
+
+      // Cleanup on unload
+      window.addEventListener('beforeunload', () => {
+        supabase.removeChannel(channel);
+      });
+    }
+
+    function getStatusLabel(status) {
+      const labels = {
+        'open': 'เปิดรับเสนอราคา',
+        'in_progress': 'กำลังดำเนินการ',
+        'completed': 'เสร็จสิ้น',
+        'cancelled': 'ยกเลิกแล้ว'
+      };
+      return labels[status] || status;
+    }
+
+    function getStatusBadgeClass(status) {
+      const classes = {
+        'open': 'success',
+        'in_progress': 'warning',
+        'completed': 'primary',
+        'cancelled': 'gray'
+      };
+      return classes[status] || 'gray';
+    }
+
+    function getBidStatusLabel(status) {
+      const labels = {
+        'pending': 'รอพิจารณา',
+        'accepted': 'ยอมรับแล้ว',
+        'rejected': 'ถูกปฏิเสธ',
+        'withdrawn': 'ถอนเอง'
+      };
+      return labels[status] || status;
+    }
+
+    function getBidStatusBadgeClass(status) {
+      const classes = {
+        'pending': 'warning',
+        'accepted': 'success',
+        'rejected': 'danger',
+        'withdrawn': 'gray'
+      };
+      return classes[status] || 'gray';
+    }
+  </script>
+
+  <style>
+    /* Post Detail Styles */
+    .breadcrumb {
+      padding: var(--space-2) 0;
+    }
+
+    .post-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+
+    @media (min-width: 900px) {
+      .post-detail-grid {
+        grid-template-columns: 1fr 340px;
+        align-items: start;
+      }
+    }
+
+    .post-main {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+    }
+
+    .post-header {
+      margin-bottom: var(--space-6);
+      padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .post-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+    }
+
+    .post-title {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text);
+      line-height: 1.3;
+      margin-bottom: var(--space-4);
+    }
+
+    .post-author {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+
+    .author-info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .author-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-lg);
+    }
+
+    .author-name {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text);
+    }
+
+    .author-location {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .post-date {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      white-space: nowrap;
+    }
+
+    .post-gallery {
+      margin-bottom: var(--space-6);
+    }
+
+    .gallery-main {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--space-3);
+    }
+
+    .gallery-main img {
+      width: 100%;
+      height: auto;
+      max-height: 500px;
+      object-fit: cover;
+    }
+
+    .gallery-thumbs {
+      display: flex;
+      gap: var(--space-2);
+      overflow-x: auto;
+      padding: var(--space-1);
+    }
+
+    .gallery-thumb {
+      flex-shrink: 0;
+      width: 80px;
+      height: 60px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 2px solid transparent;
+      padding: 0;
+      background: none;
+    }
+
+    .gallery-thumb.active {
+      border-color: var(--color-primary);
+    }
+
+    .gallery-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .post-description {
+      margin-bottom: var(--space-6);
+      padding-bottom: var(--space-6);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .post-description h3 {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--space-3);
+    }
+
+    .post-budget {
+      background: var(--color-bg);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    .post-budget h3 {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--space-2);
+    }
+
+    .budget-range {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-primary);
+    }
+
+    .budget-range span:nth-child(2) {
+      color: var(--color-text-muted);
+      font-weight: var(--font-weight-normal);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .detail-item dt {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-1);
+    }
+
+    .detail-item dd {
+      font-size: var(--font-size-base);
+      color: var(--color-text);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .post-contact {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      margin-top: var(--space-6);
+    }
+
+    .post-contact h3 {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: #065f46;
+      margin-bottom: var(--space-3);
+    }
+
+    .contact-item {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--space-2) 0;
+      border-bottom: 1px solid #a7f3d0;
+    }
+
+    .contact-item:last-child {
+      border-bottom: none;
+    }
+
+    .contact-label {
+      font-size: var(--font-size-sm);
+      color: #047857;
+      font-weight: var(--font-weight-medium);
+    }
+
+    .contact-value {
+      font-size: var(--font-size-sm);
+      color: #065f46;
+      text-decoration: none;
+    }
+
+    .contact-value:hover {
+      text-decoration: underline;
+    }
+
+    /* Sidebar Cards */
+    .sidebar-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5);
+      margin-bottom: var(--space-4);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .panel-header h2 {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .bid-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .bid-login-prompt {
+      text-align: center;
+      padding: var(--space-4);
+    }
+
+    .bid-login-prompt p {
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-3);
+    }
+
+    .bid-already .alert {
+      margin-bottom: var(--space-3);
+    }
+
+    .bids-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .bid-card {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      transition: all var(--transition-fast);
+    }
+
+    .bid-card.accepted {
+      border-color: var(--color-secondary);
+      background: #ecfdf5;
+    }
+
+    .bid-card.own {
+      border-color: var(--color-primary);
+    }
+
+    .bid-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: var(--space-3);
+    }
+
+    .bidder-info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .bidder-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-sm);
+    }
+
+    .bidder-name {
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text);
+    }
+
+    .bid-date {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-muted);
+    }
+
+    .bid-price {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+      margin-bottom: var(--space-3);
+    }
+
+    .bid-message {
+      font-size: var(--font-size-sm);
+      line-height: 1.6;
+      margin-bottom: var(--space-3);
+    }
+
+    .bid-message p {
+      margin-bottom: var(--space-2);
+    }
+
+    .bid-message p:last-child {
+      margin-bottom: 0;
+    }
+
+    .bid-timeline {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-3);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .bid-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .owner-actions h3 {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--space-3);
+    }
+
+    .info-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .info-item dt {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-1);
+    }
+
+    .info-item dd {
+      font-size: var(--font-size-sm);
+      color: var(--color-text);
+    }
+
+    @media (max-width: 899px) {
+      .post-sidebar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-4);
+      }
+
+      .sidebar-card {
+        margin-bottom: 0;
+      }
+
+      .bids-panel {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</body>
+</html>

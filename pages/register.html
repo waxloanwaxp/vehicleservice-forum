@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>สมัครสมาชิก - VehicleService Forum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <script type="importmap" src="/importmap.json"></script>
+</head>
+<body>
+  <div id="app">
+    <header id="site-header"></header>
+
+    <main id="main-content" class="auth-page">
+      <div class="container">
+        <div class="auth-card">
+          <div class="auth-header">
+            <a href="/" class="header-brand" style="justify-content: center;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M19 17h2c.6 0 1-.4 1-1v-4c0-.6-.4-1-1-1H5c-.6 0-1 .4-1 1v4c0 .6.4 1 1 1h2"></path>
+                <path d="M9 17V9.5C9 7 11 5 13.5 5S18 7 18 9.5V17"></path>
+                <path d="M12 17v-5"></path>
+              </svg>
+              VehicleService
+            </a>
+            <h1>สมัครสมาชิก</h1>
+            <p>เลือกประเภทบัญชีและกรอกข้อมูลเพื่อเริ่มใช้งาน</p>
+          </div>
+
+          <!-- Role Selection -->
+          <div class="role-selector" role="radiogroup" aria-label="เลือกประเภทบัญชี">
+            <input type="radio" id="role-seeker" name="role" value="seeker" checked hidden>
+            <input type="radio" id="role-provider" name="role" value="provider" hidden>
+
+            <label for="role-seeker" class="role-option" data-role="seeker">
+              <div class="role-option-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <div class="role-option-content">
+                <h3>ผู้ใช้บริการทั่วไป</h3>
+                <p>ต้องการหาบริการยานพาหนะ โพสต์คำขอ รับใบเสนอราคา</p>
+              </div>
+              <div class="role-option-check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+            </label>
+
+            <label for="role-provider" class="role-option" data-role="provider">
+              <div class="role-option-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M21 15V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v10"></path>
+                  <path d="M3 19h18"></path>
+                  <path d="M7 19v-6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v6"></path>
+                </svg>
+              </div>
+              <div class="role-option-content">
+                <h3>ผู้ให้บริการ</h3>
+                <p>ต้องการเสนอบริการและราคา ให้ใบเสนอราคาใต้กระทู้</p>
+              </div>
+              <div class="role-option-check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+            </label>
+          </div>
+
+          <form id="register-form" class="auth-form" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="full_name">ชื่อ-นามสกุล <span class="required">*</span></label>
+              <input type="text" id="full_name" name="full_name" class="form-input" placeholder="สมชาย ใจดี" required autocomplete="name">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="email">อีเมล <span class="required">*</span></label>
+              <input type="email" id="email" name="email" class="form-input" placeholder="you@example.com" required autocomplete="email">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="phone">เบอร์โทรศัพท์</label>
+              <input type="tel" id="phone" name="phone" class="form-input" placeholder="08X-XXX-XXXX" autocomplete="tel">
+              <span class="form-help">ใช้สำหรับติดต่อโดยตรง (จะแสดงหลังยืนยันราคา)</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="line_id">Line ID</label>
+              <input type="text" id="line_id" name="line_id" class="form-input" placeholder="@yourlineid" autocomplete="off">
+              <span class="form-help">แนะนำสำหรับผู้ให้บริการ เพื่อให้ลูกค้าติดต่อได้ง่าย</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="password">รหัสผ่าน <span class="required">*</span></label>
+              <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required autocomplete="new-password" minlength="8">
+              <span class="form-help">อย่างน้อย 8 ตัวอักษร</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="confirm_password">ยืนยันรหัสผ่าน <span class="required">*</span></label>
+              <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="••••••••" required autocomplete="new-password">
+            </div>
+
+            <!-- Location fields (shown for both roles) -->
+            <fieldset class="form-group">
+              <legend class="form-label">ที่ตั้ง <span class="required">*</span></legend>
+              <div class="form-row">
+                <div>
+                  <label class="form-label" for="province">จังหวัด <span class="required">*</span></label>
+                  <select id="province" name="province" class="form-select" required>
+                    <option value="">เลือกจังหวัด</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label" for="district">อำเภอ/เขต <span class="required">*</span></label>
+                  <select id="district" name="district" class="form-select" required disabled>
+                    <option value="">เลือกอำเภอ/เขต</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div>
+                  <label class="form-label" for="subdistrict">ตำบล/แขวง</label>
+                  <select id="subdistrict" name="subdistrict" class="form-select" disabled>
+                    <option value="">เลือกตำบล/แขวง</option>
+                  </select>
+                </div>
+              </div>
+            </fieldset>
+
+            <div class="form-group">
+              <label class="form-checkbox">
+                <input type="checkbox" name="terms" id="terms" required>
+                <span>ฉันยอมรับ <a href="/pages/terms.html" target="_blank">เงื่อนไขการใช้งาน</a> และ <a href="/pages/privacy.html" target="_blank">นโยบายความเป็นส่วนตัว</a> <span class="required">*</span></span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg">สมัครสมาชิก</button>
+          </form>
+
+          <div class="auth-footer">
+            <p>มีบัญชีแล้ว? <a href="/pages/login.html">เข้าสู่ระบบ</a></p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer id="site-footer"></footer>
+  </div>
+
+  <script type="module">
+    import { initAuth, signUp, showToast, THAI_PROVINCES, THAI_DISTRICTS, THAI_SUBDISTRICTS } from '/js/auth.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initAuth();
+
+      // Load shared components
+      const [headerRes, footerRes] = await Promise.all([
+        fetch('/header.html'),
+        fetch('/footer.html')
+      ]);
+      document.getElementById('site-header').innerHTML = await headerRes.text();
+      document.getElementById('site-footer').innerHTML = await footerRes.text();
+
+      // Initialize role selector
+      initRoleSelector();
+
+      // Initialize location dropdowns
+      initLocationDropdowns();
+
+      // Handle form submission
+      const form = document.getElementById('register-form');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (!validateForm(form)) return;
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner spinner-sm"></span> กำลังสมัคร...';
+
+        try {
+          const formData = new FormData(form);
+          const role = document.querySelector('input[name="role"]:checked').value;
+
+          const metadata = {
+            full_name: formData.get('full_name'),
+            phone: formData.get('phone'),
+            line_id: formData.get('line_id'),
+            province: formData.get('province'),
+            district: formData.get('district'),
+            subdistrict: formData.get('subdistrict')
+          };
+
+          await signUp(
+            formData.get('email'),
+            formData.get('password'),
+            role,
+            metadata
+          );
+
+          showToast('สมัครสมาชิกสำเร็จ กรุณาตรวจสอบอีเมลเพื่อยืนยัน', 'success');
+          setTimeout(() => window.location.href = '/pages/login.html', 2000);
+        } catch (err) {
+          console.error('Register error:', err);
+          showToast(err.message || 'สมัครสมาชิกไม่สำเร็จ', 'error');
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+      });
+    });
+
+    function initRoleSelector() {
+      const options = document.querySelectorAll('.role-option');
+      const radioSeeker = document.getElementById('role-seeker');
+      const radioProvider = document.getElementById('role-provider');
+
+      options.forEach(option => {
+        option.addEventListener('click', () => {
+          const role = option.dataset.role;
+          if (role === 'seeker') {
+            radioSeeker.checked = true;
+          } else {
+            radioProvider.checked = true;
+          }
+          options.forEach(o => o.classList.remove('selected'));
+          option.classList.add('selected');
+        });
+
+        // Keyboard support
+        option.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            option.click();
+          }
+        });
+      });
+    }
+
+    function initLocationDropdowns() {
+      const provinceSelect = document.getElementById('province');
+      const districtSelect = document.getElementById('district');
+      const subdistrictSelect = document.getElementById('subdistrict');
+
+      // Load provinces
+      THAI_PROVINCES.forEach(province => {
+        const option = document.createElement('option');
+        option.value = province;
+        option.textContent = province;
+        provinceSelect.appendChild(option);
+      });
+
+      // Province change -> load districts
+      provinceSelect.addEventListener('change', () => {
+        const province = provinceSelect.value;
+        districtSelect.innerHTML = '<option value="">เลือกอำเภอ/เขต</option>';
+        districtSelect.disabled = !province;
+        subdistrictSelect.innerHTML = '<option value="">เลือกตำบล/แขวง</option>';
+        subdistrictSelect.disabled = true;
+
+        if (province && THAI_DISTRICTS[province]) {
+          THAI_DISTRICTS[province].forEach(district => {
+            const option = document.createElement('option');
+            option.value = district;
+            option.textContent = district;
+            districtSelect.appendChild(option);
+          });
+        }
+      });
+
+      // District change -> load subdistricts
+      districtSelect.addEventListener('change', () => {
+        const province = provinceSelect.value;
+        const district = districtSelect.value;
+        subdistrictSelect.innerHTML = '<option value="">เลือกตำบล/แขวง</option>';
+        subdistrictSelect.disabled = !district;
+
+        if (district && THAI_SUBDISTRICTS[province]?.[district]) {
+          THAI_SUBDISTRICTS[province][district].forEach(subdistrict => {
+            const option = document.createElement('option');
+            option.value = subdistrict;
+            option.textContent = subdistrict;
+            subdistrictSelect.appendChild(option);
+          });
+        }
+      });
+    }
+
+    function validateForm(form) {
+      const password = form.password.value;
+      const confirmPassword = form.confirm_password.value;
+
+      if (password.length < 8) {
+        showToast('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร', 'error');
+        form.password.focus();
+        return false;
+      }
+
+      if (password !== confirmPassword) {
+        showToast('รหัสผ่านไม่ตรงกัน', 'error');
+        form.confirm_password.focus();
+        return false;
+      }
+
+      if (!form.terms.checked) {
+        showToast('กรุณายอมรับเงื่อนไขการใช้งาน', 'error');
+        form.terms.focus();
+        return false;
+      }
+
+      return true;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>โปรไฟล์ - VehicleService Forum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <script type="importmap" src="/importmap.json"></script>
+</head>
+<body>
+  <div id="app">
+    <header id="site-header"></header>
+
+    <main id="main-content" class="profile-page">
+      <div class="container">
+        <div class="page-header">
+          <h1>โปรไฟล์ของฉัน</h1>
+          <p>จัดการข้อมูลส่วนตัวและการตั้งค่า</p>
+        </div>
+
+        <div class="profile-grid">
+          <!-- Profile Card -->
+          <aside class="profile-sidebar">
+            <div class="profile-card">
+              <div class="profile-avatar" id="profile-avatar">
+                <span id="avatar-initial">U</span>
+                <label class="avatar-upload-label" for="avatar-upload">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                </label>
+                <input type="file" id="avatar-upload" accept="image/*" hidden>
+              </div>
+              <div class="profile-info">
+                <h2 id="profile-name">-</h2>
+                <p class="profile-role" id="profile-role">-</p>
+                <div class="profile-stats" id="profile-stats">
+                  <!-- Stats will be loaded here -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="profile-actions">
+              <a href="/pages/dashboard.html" class="btn btn-outline btn-block">แดชบอร์ด</a>
+              <a href="/pages/my-posts.html" class="btn btn-ghost btn-block">กระทู้ของฉัน</a>
+              <a href="/pages/my-bids.html" class="btn btn-ghost btn-block">ใบเสนอราคา</a>
+              <a href="/pages/settings.html" class="btn btn-ghost btn-block">ตั้งค่า</a>
+            </div>
+          </aside>
+
+          <!-- Profile Form -->
+          <section class="profile-main">
+            <form id="profile-form" class="profile-form" novalidate>
+              <fieldset class="form-section">
+                <legend class="section-legend">ข้อมูลส่วนตัว</legend>
+
+                <div class="form-group">
+                  <label class="form-label" for="full_name">ชื่อ-นามสกุล <span class="required">*</span></label>
+                  <input type="text" id="full_name" name="full_name" class="form-input" required autocomplete="name">
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="phone">เบอร์โทรศัพท์</label>
+                    <input type="tel" id="phone" name="phone" class="form-input" placeholder="08X-XXX-XXXX" autocomplete="tel">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="line_id">Line ID</label>
+                    <input type="text" id="line_id" name="line_id" class="form-input" placeholder="@yourlineid" autocomplete="off">
+                    <span class="form-help">แนะนำสำหรับผู้ให้บริการ</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="bio">เกี่ยวกับตัวเอง</label>
+                  <textarea id="bio" name="bio" class="form-textarea" placeholder="ประสบการณ์ ทักษะ หรือข้อมูลเพิ่มเติม" rows="4"></textarea>
+                </div>
+              </fieldset>
+
+              <fieldset class="form-section">
+                <legend class="section-legend">ที่ตั้ง <span class="required">*</span></legend>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="province">จังหวัด <span class="required">*</span></label>
+                    <select id="province" name="province" class="form-select" required>
+                      <option value="">เลือกจังหวัด</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="district">อำเภอ/เขต <span class="required">*</span></label>
+                    <select id="district" name="district" class="form-select" required disabled>
+                      <option value="">เลือกอำเภอ/เขต</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="subdistrict">ตำบล/แขวง</label>
+                    <select id="subdistrict" name="subdistrict" class="form-select" disabled>
+                      <option value="">เลือกตำบล/แขวง</option>
+                    </select>
+                  </div>
+                </div>
+              </fieldset>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">บันทึกการเปลี่ยนแปลง</button>
+              </div>
+            </form>
+
+            <!-- Danger Zone -->
+            <fieldset class="form-section danger-zone">
+              <legend class="section-legend danger">โซนอันตราย</legend>
+              <p style="color: var(--color-text-secondary); margin-bottom: var(--space-4);">
+                การดำเนินการเหล่านี้ไม่สามารถย้อนกลับได้ โปรดพิจารณาอย่างรอบคอบ
+              </p>
+              <div style="display: flex; flex-wrap: wrap; gap: var(--space-3);">
+                <button type="button" class="btn btn-danger" id="delete-account-btn">ลบบัญชี</button>
+              </div>
+            </fieldset>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer id="site-footer"></footer>
+  </div>
+
+  <script type="module">
+    import { initAuth, supabase, getUserProfile, isAuthenticated, updateProfile, uploadAvatar, showToast, THAI_PROVINCES, THAI_DISTRICTS, THAI_SUBDISTRICTS, confirmDialog } from '/js/auth.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initAuth();
+
+      // Check auth
+      if (!isAuthenticated()) {
+        showToast('กรุณาเข้าสู่ระบบก่อน', 'warning');
+        setTimeout(() => {
+          window.location.href = '/pages/login.html?redirect=' + encodeURIComponent(window.location.href);
+        }, 1500);
+        return;
+      }
+
+      // Load shared components
+      const [headerRes, footerRes] = await Promise.all([
+        fetch('/header.html'),
+        fetch('/footer.html')
+      ]);
+      document.getElementById('site-header').innerHTML = await headerRes.text();
+      document.getElementById('site-footer').innerHTML = await footerRes.text();
+
+      await loadProfile();
+      initLocationDropdowns();
+      initAvatarUpload();
+      initForm();
+      initDangerZone();
+    });
+
+    async function loadProfile() {
+      const profile = getUserProfile();
+      if (!profile) return;
+
+      // Fill form
+      document.getElementById('full_name').value = profile.full_name || '';
+      document.getElementById('phone').value = profile.phone || '';
+      document.getElementById('line_id').value = profile.line_id || '';
+      document.getElementById('bio').value = profile.bio || '';
+
+      // Update display
+      document.getElementById('profile-name').textContent = profile.full_name || 'ไม่ได้ตั้งชื่อ';
+      document.getElementById('avatar-initial').textContent = (profile.full_name || 'U')[0].toUpperCase();
+      document.getElementById('profile-role').textContent = profile.role === 'provider' ? 'ผู้ให้บริการ' : 'ผู้ใช้ทั่วไป';
+      document.getElementById('profile-role').className = `profile-role ${profile.role === 'provider' ? 'provider' : 'seeker'}`;
+
+      // Avatar
+      if (profile.avatar_url) {
+        document.getElementById('profile-avatar').style.backgroundImage = `url(${profile.avatar_url})`;
+        document.getElementById('avatar-initial').style.display = 'none';
+      }
+
+      // Location dropdowns
+      if (profile.province) {
+        document.getElementById('province').value = profile.province;
+        document.getElementById('province').dispatchEvent(new Event('change'));
+
+        setTimeout(() => {
+          if (profile.district) {
+            document.getElementById('district').value = profile.district;
+            document.getElementById('district').dispatchEvent(new Event('change'));
+
+            setTimeout(() => {
+              if (profile.subdistrict) {
+                document.getElementById('subdistrict').value = profile.subdistrict;
+              }
+            }, 100);
+          }
+        }, 100);
+      }
+
+      // Load stats
+      await loadStats();
+    }
+
+    async function loadStats() {
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) return;
+
+      try {
+        const isProv = profile?.role === 'provider';
+
+        if (isProv) {
+          const [bidsRes, reviewsRes] = await Promise.all([
+            supabase.from('bids').select('status', { count: 'exact' }).eq('user_id', user.id),
+            supabase.from('reviews').select('rating', { count: 'exact' }).eq('reviewee_id', user.id)
+          ]);
+
+          const bids = bidsRes.data || [];
+          const reviews = reviewsRes.data || [];
+
+          const ratingAvg = reviews.length > 0
+            ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+            : '0.0';
+
+          document.getElementById('profile-stats').innerHTML = `
+            <div class="stat-item">
+              <span class="stat-value">${bids.length}</span>
+              <span class="stat-label">ใบเสนอราคา</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">${bids.filter(b => b.status === 'accepted').length}</span>
+              <span class="stat-label">งานที่รับ</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">${ratingAvg}</span>
+              <span class="stat-label">คะแนนเฉลี่ย</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">${reviews.length}</span>
+              <span class="stat-label">รีวิว</span>
+            </div>
+          `;
+        } else {
+          const [postsRes] = await Promise.all([
+            supabase.from('posts').select('status', { count: 'exact' }).eq('user_id', user.id)
+          ]);
+
+          const posts = postsRes.data || [];
+
+          document.getElementById('profile-stats').innerHTML = `
+            <div class="stat-item">
+              <span class="stat-value">${posts.length}</span>
+              <span class="stat-label">กระทู้ทั้งหมด</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">${posts.filter(p => p.status === 'open').length}</span>
+              <span class="stat-label">เปิดรับราคา</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">${posts.filter(p => p.status === 'completed').length}</span>
+              <span class="stat-label">เสร็จสิ้น</span>
+            </div>
+          `;
+        }
+      } catch (err) {
+        console.error('Load stats error:', err);
+      }
+    }
+
+    function initLocationDropdowns() {
+      const provinceSelect = document.getElementById('province');
+      const districtSelect = document.getElementById('district');
+      const subdistrictSelect = document.getElementById('subdistrict');
+
+      THAI_PROVINCES.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        provinceSelect.appendChild(opt);
+      });
+
+      provinceSelect.addEventListener('change', () => {
+        const province = provinceSelect.value;
+        districtSelect.innerHTML = '<option value="">เลือกอำเภอ/เขต</option>';
+        districtSelect.disabled = !province;
+        subdistrictSelect.innerHTML = '<option value="">เลือกตำบล/แขวง</option>';
+        subdistrictSelect.disabled = true;
+
+        if (province && THAI_DISTRICTS[province]) {
+          THAI_DISTRICTS[province].forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d;
+            opt.textContent = d;
+            districtSelect.appendChild(opt);
+          });
+        }
+      });
+
+      districtSelect.addEventListener('change', () => {
+        const province = provinceSelect.value;
+        const district = districtSelect.value;
+        subdistrictSelect.innerHTML = '<option value="">เลือกตำบล/แขวง</option>';
+        subdistrictSelect.disabled = !district;
+
+        if (district && THAI_SUBDISTRICTS[province]?.[district]) {
+          THAI_SUBDISTRICTS[province][district].forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s;
+            opt.textContent = s;
+            subdistrictSelect.appendChild(opt);
+          });
+        }
+      });
+    }
+
+    function initAvatarUpload() {
+      const uploadLabel = document.querySelector('.avatar-upload-label');
+      const fileInput = document.getElementById('avatar-upload');
+      const avatarDiv = document.getElementById('profile-avatar');
+      const initial = document.getElementById('avatar-initial');
+
+      uploadLabel.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput.click();
+      });
+
+      avatarDiv.addEventListener('click', () => fileInput.click());
+
+      fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+          showToast('กรุณาเลือกไฟล์รูปภาพ', 'error');
+          return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+          showToast('ขนาดไฟล์ต้องไม่เกิน 2MB', 'error');
+          return;
+        }
+
+        try {
+          uploadLabel.innerHTML = '<span class="spinner spinner-sm"></span>';
+          const url = await uploadAvatar(file);
+          avatarDiv.style.backgroundImage = `url(${url})`;
+          initial.style.display = 'none';
+          showToast('อัปโหลดรูปโปรไฟล์สำเร็จ', 'success');
+          uploadLabel.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          `;
+        } catch (err) {
+          console.error('Avatar upload error:', err);
+          showToast(err.message, 'error');
+          uploadLabel.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          `;
+        }
+      });
+    }
+
+    function initForm() {
+      const form = document.getElementById('profile-form');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+
+        // Validate required fields
+        if (!formData.get('full_name')?.trim()) {
+          showToast('กรุณากรอกชื่อ-นามสกุล', 'error');
+          return;
+        }
+        if (!formData.get('province')) {
+          showToast('กรุณาเลือกจังหวัด', 'error');
+          return;
+        }
+        if (!formData.get('district')) {
+          showToast('กรุณาเลือกอำเภอ/เขต', 'error');
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner spinner-sm"></span> กำลังบันทึก...';
+
+        try {
+          await updateProfile({
+            full_name: formData.get('full_name').trim(),
+            phone: formData.get('phone')?.trim() || null,
+            line_id: formData.get('line_id')?.trim() || null,
+            bio: formData.get('bio')?.trim() || null,
+            province: formData.get('province'),
+            district: formData.get('district'),
+            subdistrict: formData.get('subdistrict') || null
+          });
+
+          showToast('บันทึกโปรไฟล์สำเร็จ', 'success');
+          // Reload to update display
+          setTimeout(() => window.location.reload(), 1000);
+        } catch (err) {
+          console.error('Update profile error:', err);
+          showToast(err.message, 'error');
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+      });
+    }
+
+    function initDangerZone() {
+      document.getElementById('delete-account-btn').addEventListener('click', async () => {
+        const confirmed = await confirmDialog(
+          'การลบบัญชีจะลบข้อมูลทั้งหมดรวมถึงกระทู้ ใบเสนอราคา และข้อมูลส่วนตัว ไม่สามารถย้อนกลับได้ คุณแน่ใจหรือไม่?',
+          { title: 'ลบบัญชี', danger: true, confirmText: 'ลบบัญชี', cancelText: 'ยกเลิก' }
+        );
+
+        if (!confirmed) return;
+
+        const doubleConfirmed = await confirmDialog(
+          'ยืนยันอีกครั้ง: คุณแน่ใจสมบูรณ์ว่าต้องการลบบัญชีนี้? ข้อมูลจะหายไปถาวร',
+          { title: 'ยืนยันการลบบัญชี', danger: true, confirmText: 'ใช่ ลบเลย', cancelText: 'ไม่ ยกเลิก' }
+        );
+
+        if (!doubleConfirmed) return;
+
+        try {
+          // Note: This requires a Supabase Edge Function or admin API
+          // For now, we'll just sign out and show message
+          showToast('ฟีเจอร์ลบบัญชีต้องการ Backend เพิ่มเติม โปรดติดต่อแอดมิน', 'warning');
+        } catch (err) {
+          console.error('Delete account error:', err);
+          showToast(err.message, 'error');
+        }
+      });
+    }
+  </script>
+
+  <style>
+    .profile-page {
+      padding: var(--space-8) 0 var(--space-16);
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+
+    @media (min-width: 900px) {
+      .profile-grid {
+        grid-template-columns: 300px 1fr;
+        align-items: start;
+      }
+    }
+
+    .profile-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      text-align: center;
+      position: sticky;
+      top: 90px;
+    }
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: var(--font-weight-bold);
+      font-size: var(--font-size-3xl);
+      margin: 0 auto var(--space-4);
+      position: relative;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .profile-avatar::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: inherit;
+    }
+
+    .avatar-upload-label {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      transition: transform var(--transition-fast);
+    }
+
+    .avatar-upload-label:hover {
+      transform: scale(1.1);
+    }
+
+    .profile-info h2 {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--space-1);
+    }
+
+    .profile-role {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      margin-bottom: var(--space-4);
+    }
+
+    .profile-role.provider {
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+    }
+
+    .profile-role.seeker {
+      background: var(--color-secondary);
+      color: white;
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-3);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-value {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text);
+    }
+
+    .stat-label {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+    }
+
+    .profile-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      margin-top: var(--space-6);
+    }
+
+    .profile-main {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+    }
+
+    .profile-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-8);
+    }
+
+    .danger-zone {
+      border-top: 2px solid var(--color-danger);
+      padding-top: var(--space-6);
+      margin-top: var(--space-6);
+    }
+
+    .danger-zone .section-legend.danger {
+      color: var(--color-danger);
+      border-color: var(--color-danger);
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--color-border);
+    }
+  </style>
+</body>
+</html>

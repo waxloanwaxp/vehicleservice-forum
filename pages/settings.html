@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ตั้งค่า - VehicleService Forum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <script type="importmap" src="/importmap.json"></script>
+</head>
+<body>
+  <div id="app">
+    <header id="site-header"></header>
+
+    <main id="main-content" class="settings-page">
+      <div class="container">
+        <div class="page-header">
+          <h1>ตั้งค่า</h1>
+          <p>จัดการการตั้งค่าบัญชีและการแจ้งเตือน</p>
+        </div>
+
+        <div class="settings-grid">
+          <!-- Sidebar -->
+          <aside class="settings-sidebar">
+            <nav class="settings-nav" aria-label="เมนูตั้งค่า">
+              <a href="#account" class="settings-nav-item active" data-section="account">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                บัญชี
+              </a>
+              <a href="#notifications" class="settings-nav-item" data-section="notifications">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                การแจ้งเตือน
+              </a>
+              <a href="#privacy" class="settings-nav-item" data-section="privacy">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                ความเป็นส่วนตัว
+              </a>
+              <a href="#security" class="settings-nav-item" data-section="security">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                ความปลอดภัย
+              </a>
+            </nav>
+          </aside>
+
+          <!-- Content -->
+          <section class="settings-content">
+            <!-- Account Section -->
+            <section id="account" class="settings-section active">
+              <h2>ข้อมูลบัญชี</h2>
+              <p class="section-description">จัดการข้อมูลโปรไฟล์และการตั้งค่าบัญชี</p>
+
+              <div class="settings-card">
+                <h3>โปรไฟล์สาธารณะ</h3>
+                <p class="card-description">ข้อมูลที่ผู้อื่นเห็นเมื่อเข้าชมโปรไฟล์ของคุณ</p>
+                <a href="/pages/profile.html" class="btn btn-primary">แก้ไขโปรไฟล์</a>
+              </div>
+
+              <div class="settings-card">
+                <h3>ประเภทบัญชี</h3>
+                <p class="card-description" id="account-type-display">-</p>
+                <div id="account-type-actions"></div>
+              </div>
+
+              <div class="settings-card">
+                <h3>อีเมล</h3>
+                <p class="card-description" id="email-display">-</p>
+                <button class="btn btn-outline" id="change-email-btn">เปลี่ยนอีเมล</button>
+              </div>
+            </section>
+
+            <!-- Notifications Section -->
+            <section id="notifications" class="settings-section">
+              <h2>การแจ้งเตือน</h2>
+              <p class="section-description">ตั้งค่าการแจ้งเตือนที่คุณต้องการรับ</p>
+
+              <div class="settings-card">
+                <h3>การแจ้งเตือนในแอป</h3>
+                <div class="notification-toggle">
+                  <div class="toggle-info">
+                    <h4>ใบเสนอราคาใหม่</h4>
+                    <p>เมื่อมีผู้เสนอราคาในกระทู้ของคุณ</p>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="notify-new-bid" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="notification-toggle">
+                  <div class="toggle-info">
+                    <h4>ใบเสนอราคาถูกยอมรับ</h4>
+                    <p>เมื่อใบเสนอราคาของคุณถูกเลือก</p>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="notify-bid-accepted" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="notification-toggle">
+                  <div class="toggle-info">
+                    <h4>ข้อความใหม่</h4>
+                    <p>เมื่อมีข้อความในแชท</p>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="notify-new-message" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="notification-toggle">
+                  <div class="toggle-info">
+                    <h4>งานเสร็จสิ้น</h4>
+                    <p>เมื่อผู้ใช้ทำเครื่องหมายงานเสร็จ</p>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="notify-job-completed" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="settings-card">
+                <h3>การแจ้งเตือนทางอีเมล</h3>
+                <div class="notification-toggle">
+                  <div class="toggle-info">
+                    <h4>ใบเสนอราคาใหม่</h4>
+                    <p>ส่งอีเมลเมื่อมีใบเสนอราคาใหม่</p>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="email-new-bid" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="notification-toggle">
+                  <div class="toggle-info">
+                    <h4>ใบเสนอราคาถูกยอมรับ/ปฏิเสธ</h4>
+                    <p>ส่งอีเมลเมื่อสถานะใบเสนอราคาเปลี่ยน</p>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="email-bid-status" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="notification-toggle">
+                  <div class="toggle-info">
+                    <h4>สรุปกิจกรรมรายสัปดาห์</h4>
+                    <p>สรุปกิจกรรมของสัปดาห์ทุกวันจันทร์</p>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="email-weekly" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </section>
+
+            <!-- Privacy Section -->
+            <section id="privacy" class="settings-section">
+              <h2>ความเป็นส่วนตัว</h2>
+              <p class="section-description">ควบคุมข้อมูลที่แสดงต่อสาธารณะ</p>
+
+              <div class="settings-card">
+                <h3>ข้อมูลโปรไฟล์สาธารณะ</h3>
+                <div class="privacy-toggle">
+                  <div class="toggle-info">
+                    <h4>แสดงชื่อจริง</h4>
+                    <p>แสดงชื่อ-นามสกุลในโปรไฟล์สาธารณะ</p>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="privacy-show-name" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="privacy-toggle">
+                  <div class="toggle-info">
+                    <h4>แสดงจังหวัด/อำเภอ</h4>
+                    <p>แสดงที่ตั้งโดยประมาณในโปรไฟล์</p>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="privacy-show-location" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="privacy-toggle">
+                  <div class="toggle-info">
+                    <h4>แสดงเบอร์โทรศัพท์</h4>
+                    <p>แสดงเบอร์โทรศัพท์หลังยืนยันราคาแล้ว</p>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="privacy-show-phone" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="privacy-toggle">
+                  <div class="toggle-info">
+                    <h4>แสดง Line ID</h4>
+                    <p>แสดง Line ID ในโปรไฟล์สาธารณะ</p>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="privacy-show-line" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="settings-card">
+                <h3>ข้อมูลการใช้งาน</h3>
+                <p class="card-description">ดูและจัดการข้อมูลที่เราเก็บรวบรวม</p>
+                <a href="/pages/data-request.html" class="btn btn-outline">ขอสำเนาข้อมูล</a>
+              </div>
+            </section>
+
+            <!-- Security Section -->
+            <section id="security" class="settings-section">
+              <h2>ความปลอดภัย</h2>
+              <p class="section-description">จัดการรหัสผ่านและการเข้าสู่ระบบ</p>
+
+              <div class="settings-card">
+                <h3>เปลี่ยนรหัสผ่าน</h3>
+                <form id="change-password-form" class="security-form">
+                  <div class="form-group">
+                    <label class="form-label" for="current_password">รหัสผ่านปัจจุบัน <span class="required">*</span></label>
+                    <input type="password" id="current_password" name="current_password" class="form-input" required autocomplete="current-password">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="new_password">รหัสผ่านใหม่ <span class="required">*</span></label>
+                    <input type="password" id="new_password" name="new_password" class="form-input" required autocomplete="new-password" minlength="8">
+                    <span class="form-help">อย่างน้อย 8 ตัวอักษร</span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="confirm_new_password">ยืนยันรหัสผ่านใหม่ <span class="required">*</span></label>
+                    <input type="password" id="confirm_new_password" name="confirm_new_password" class="form-input" required autocomplete="new-password">
+                  </div>
+                  <button type="submit" class="btn btn-primary">เปลี่ยนรหัสผ่าน</button>
+                </form>
+              </div>
+
+              <div class="settings-card">
+                <h3>เซสชันที่ใช้งาน中</h3>
+                <p class="card-description">จัดการอุปกรณ์ที่เข้าสู่ระบบอยู่</p>
+                <div id="active-sessions">
+                  <div class="session-item">
+                    <div class="session-info">
+                      <div class="session-device">อุปกรณ์ปัจจุบัน</div>
+                      <div class="session-location">IP: กำลังโหลด...</div>
+                    </div>
+                    <span class="badge badge-success">ปัจจุบัน</span>
+                  </div>
+                </div>
+                <button class="btn btn-danger btn-sm" id="revoke-all-sessions">ออกจากระบบทุกอุปกรณ์</button>
+              </div>
+
+              <div class="settings-card">
+                <h3>การเข้าสู่ระบบ 2 ปัจจัย (2FA)</h3>
+                <p class="card-description">เพิ่มความปลอดภัยให้บัญชีด้วยรหัส OTP</p>
+                <button class="btn btn-outline" id="enable-2fa-btn">เปิดใช้งาน 2FA</button>
+              </div>
+            </section>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer id="site-footer"></footer>
+  </div>
+
+  <script type="module">
+    import { initAuth, supabase, getUserProfile, isAuthenticated, updateProfile, showToast, confirmDialog } from '/js/auth.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initAuth();
+
+      // Check auth
+      if (!isAuthenticated()) {
+        showToast('กรุณาเข้าสู่ระบบก่อน', 'warning');
+        setTimeout(() => {
+          window.location.href = '/pages/login.html?redirect=' + encodeURIComponent(window.location.href);
+        }, 1500);
+        return;
+      }
+
+      // Load shared components
+      const [headerRes, footerRes] = await Promise.all([
+        fetch('/header.html'),
+        fetch('/footer.html')
+      ]);
+      document.getElementById('site-header').innerHTML = await headerRes.text();
+      document.getElementById('site-footer').innerHTML = await footerRes.text();
+
+      initNavigation();
+      await loadSettings();
+      initForms();
+    });
+
+    function initNavigation() {
+      const navItems = document.querySelectorAll('.settings-nav-item');
+      const sections = document.querySelectorAll('.settings-section');
+
+      navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          const sectionId = item.dataset.section;
+
+          navItems.forEach(i => i.classList.remove('active'));
+          item.classList.add('active');
+
+          sections.forEach(s => s.classList.remove('active'));
+          document.getElementById(sectionId).classList.add('active');
+        });
+      });
+    }
+
+    async function loadSettings() {
+      const profile = getUserProfile();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!profile || !user) return;
+
+      // Account type display
+      document.getElementById('account-type-display').textContent =
+        profile.role === 'provider' ? 'ผู้ให้บริการ' : 'ผู้ใช้ทั่วไป';
+
+      const actionsDiv = document.getElementById('account-type-actions');
+      if (profile.role === 'seeker') {
+        actionsDiv.innerHTML = `
+          <p class="card-description" style="margin-top: var(--space-2);">
+            ต้องการเป็นผู้ให้บริการ? คุณสามารถสมัครเพิ่มเติมได้
+          </p>
+          <a href="/pages/register.html?role=provider" class="btn btn-outline">สมัครเป็นผู้ให้บริการ</a>
+        `;
+      } else {
+        actionsDiv.innerHTML = `
+          <p class="card-description" style="margin-top: var(--space-2);">
+            คุณเป็นผู้ให้บริการอยู่แล้ว
+          </p>
+        `;
+      }
+
+      // Email display
+      document.getElementById('email-display').textContent = user.email;
+
+      // Load notification preferences from localStorage
+      loadNotificationPrefs();
+      loadPrivacyPrefs();
+    }
+
+    function loadNotificationPrefs() {
+      const prefs = JSON.parse(localStorage.getItem('notification_prefs') || '{}');
+
+      document.getElementById('notify-new-bid').checked = prefs.new_bid !== false;
+      document.getElementById('notify-bid-accepted').checked = prefs.bid_accepted !== false;
+      document.getElementById('notify-new-message').checked = prefs.new_message !== false;
+      document.getElementById('notify-job-completed').checked = prefs.job_completed !== false;
+      document.getElementById('email-new-bid').checked = prefs.email_new_bid !== false;
+      document.getElementById('email-bid-status').checked = prefs.email_bid_status !== false;
+      document.getElementById('email-weekly').checked = prefs.email_weekly !== false;
+    }
+
+    function loadPrivacyPrefs() {
+      const prefs = JSON.parse(localStorage.getItem('privacy_prefs') || '{}');
+
+      document.getElementById('privacy-show-name').checked = prefs.show_name !== false;
+      document.getElementById('privacy-show-location').checked = prefs.show_location !== false;
+      document.getElementById('privacy-show-phone').checked = prefs.show_phone !== false;
+      document.getElementById('privacy-show-line').checked = prefs.show_line !== false;
+    }
+
+    function initForms() {
+      // Notification toggles
+      document.querySelectorAll('#notifications input[type="checkbox"]').forEach(input => {
+        input.addEventListener('change', saveNotificationPrefs);
+      });
+
+      // Privacy toggles
+      document.querySelectorAll('#privacy input[type="checkbox"]').forEach(input => {
+        input.addEventListener('change', savePrivacyPrefs);
+      });
+
+      // Change password form
+      document.getElementById('change-password-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const form = e.target;
+        const formData = new FormData(form);
+        const currentPassword = formData.get('current_password');
+        const newPassword = formData.get('new_password');
+        const confirmPassword = formData.get('confirm_new_password');
+
+        if (newPassword !== confirmPassword) {
+          showToast('รหัสผ่านใหม่ไม่ตรงกัน', 'error');
+          return;
+        }
+
+        if (newPassword.length < 8) {
+          showToast('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร', 'error');
+          return;
+        }
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner spinner-sm"></span> กำลังเปลี่ยน...';
+
+        try {
+          const { error } = await supabase.auth.updateUser({
+            password: newPassword
+          });
+
+          if (error) throw error;
+
+          showToast('เปลี่ยนรหัสผ่านสำเร็จ', 'success');
+          form.reset();
+        } catch (err) {
+          console.error('Change password error:', err);
+          showToast(err.message, 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+      });
+
+      // Change email button
+      document.getElementById('change-email-btn').addEventListener('click', async () => {
+        const newEmail = prompt('กรุณากรอกอีเมลใหม่:');
+        if (!newEmail || !newEmail.includes('@')) {
+          showToast('อีเมลไม่ถูกต้อง', 'error');
+          return;
+        }
+
+        try {
+          const { error } = await supabase.auth.updateUser({
+            email: newEmail
+          });
+
+          if (error) throw error;
+
+          showToast('ส่งอีเมลยืนยันไปยังอีเมลใหม่แล้ว', 'success');
+          setTimeout(() => window.location.reload(), 2000);
+        } catch (err) {
+          console.error('Change email error:', err);
+          showToast(err.message, 'error');
+        }
+      });
+
+      // Revoke all sessions
+      document.getElementById('revoke-all-sessions').addEventListener('click', async () => {
+        const confirmed = await confirmDialog(
+          'คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบทุกอุปกรณ์? คุณจะต้องเข้าสู่ระบบใหม่',
+          { title: 'ออกจากระบบทุกอุปกรณ์', danger: true }
+        );
+
+        if (!confirmed) return;
+
+        try {
+          const { error } = await supabase.auth.signOut({ scope: 'global' });
+          if (error) throw error;
+
+          showToast('ออกจากระบบทุกอุปกรณ์แล้ว', 'success');
+          setTimeout(() => window.location.href = '/pages/login.html', 1500);
+        } catch (err) {
+          console.error('Revoke sessions error:', err);
+          showToast(err.message, 'error');
+        }
+      });
+
+      // 2FA button (placeholder)
+      document.getElementById('enable-2fa-btn').addEventListener('click', () => {
+        showToast('ฟีเจอร์ 2FA จะเปิดให้บริการเร็วๆ นี้', 'info');
+      });
+    }
+
+    function saveNotificationPrefs() {
+      const prefs = {
+        new_bid: document.getElementById('notify-new-bid').checked,
+        bid_accepted: document.getElementById('notify-bid-accepted').checked,
+        new_message: document.getElementById('notify-new-message').checked,
+        job_completed: document.getElementById('notify-job-completed').checked,
+        email_new_bid: document.getElementById('email-new-bid').checked,
+        email_bid_status: document.getElementById('email-bid-status').checked,
+        email_weekly: document.getElementById('email-weekly').checked
+      };
+
+      localStorage.setItem('notification_prefs', JSON.stringify(prefs));
+    }
+
+    function savePrivacyPrefs() {
+      const prefs = {
+        show_name: document.getElementById('privacy-show-name').checked,
+        show_location: document.getElementById('privacy-show-location').checked,
+        show_phone: document.getElementById('privacy-show-phone').checked,
+        show_line: document.getElementById('privacy-show-line').checked
+      };
+
+      localStorage.setItem('privacy_prefs', JSON.stringify(prefs));
+    }
+  </script>
+
+  <style>
+    .settings-page {
+      padding: var(--space-8) 0 var(--space-16);
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+
+    @media (min-width: 900px) {
+      .settings-grid {
+        grid-template-columns: 240px 1fr;
+      }
+    }
+
+    .settings-sidebar {
+      position: sticky;
+      top: 90px;
+    }
+
+    .settings-nav {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-3);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    .settings-nav-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      color: var(--color-text-secondary);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+    }
+
+    .settings-nav-item:hover {
+      background: var(--color-bg-hover);
+      color: var(--color-text);
+    }
+
+    .settings-nav-item.active {
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .settings-content {
+      min-width: 0;
+    }
+
+    .settings-section {
+      display: none;
+    }
+
+    .settings-section.active {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .settings-section h2 {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--space-1);
+    }
+
+    .section-description {
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-6);
+    }
+
+    .settings-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+
+    .settings-card h3 {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--space-1);
+    }
+
+    .card-description {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-4);
+    }
+
+    .notification-toggle,
+    .privacy-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .notification-toggle:last-child,
+    .privacy-toggle:last-child {
+      border-bottom: none;
+    }
+
+    .toggle-info h4 {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text);
+      margin-bottom: var(--space-1);
+    }
+
+    .toggle-info p {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: var(--color-border);
+      border-radius: var(--radius-full);
+      transition: background-color var(--transition-fast);
+    }
+
+    .toggle-slider::before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      border-radius: 50%;
+      box-shadow: var(--shadow-sm);
+      transition: transform var(--transition-fast);
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background-color: var(--color-primary);
+    }
+
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(24px);
+    }
+
+    .security-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      max-width: 400px;
+    }
+
+    .session-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .session-item:last-child {
+      border-bottom: none;
+    }
+
+    .session-device {
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text);
+    }
+
+    .session-location {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    @media (max-width: 899px) {
+      .settings-sidebar {
+        position: static;
+      }
+
+      .settings-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      .settings-nav-item {
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+        padding: var(--space-2) var(--space-3);
+        font-size: var(--font-size-sm);
+      }
+
+      .settings-nav-item svg {
+        display: none;
+      }
+    }
+  </style>
+</body>
+</html>

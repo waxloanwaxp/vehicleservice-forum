@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แดชบอร์ด - VehicleService Forum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <script type="importmap" src="/importmap.json"></script>
+</head>
+<body>
+  <div id="app">
+    <header id="site-header"></header>
+
+    <main id="main-content" class="dashboard-page">
+      <div class="container">
+        <div class="dashboard-header">
+          <div>
+            <h1>แดชบอร์ด</h1>
+            <p class="dashboard-subtitle" id="welcome-message">ยินดีต้อนรับ</p>
+          </div>
+          <a href="/pages/create-post.html" class="btn btn-primary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            โพสต์หาบริการใหม่
+          </a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid" id="stats-grid">
+          <!-- Stats will be loaded here -->
+        </div>
+
+        <!-- Quick Actions -->
+        <section class="dashboard-section">
+          <h2>เมนูด่วน</h2>
+          <div class="quick-actions">
+            <a href="/pages/create-post.html" class="action-card">
+              <div class="action-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="12" y1="18" x2="12" y2="12"></line>
+                  <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+              </div>
+              <div class="action-content">
+                <h3>สร้างกระทู้ใหม่</h3>
+                <p>โพสต์หาบริการยานพาหนะ</p>
+              </div>
+            </a>
+
+            <a href="/pages/my-posts.html" class="action-card">
+              <div class="action-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </div>
+              <div class="action-content">
+                <h3>กระทู้ของฉัน</h3>
+                <p>จัดการกระทู้ที่โพสต์ไว้</p>
+              </div>
+            </a>
+
+            <a href="/pages/my-bids.html" class="action-card">
+              <div class="action-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v10"></path>
+                  <path d="M3 19h18"></path>
+                  <path d="M7 19v-6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v6"></path>
+                </svg>
+              </div>
+              <div class="action-content">
+                <h3>ใบเสนอราคา</h3>
+                <p>ดูและจัดการใบเสนอราคา</p>
+              </div>
+            </a>
+
+            <a href="/pages/browse.html" class="action-card">
+              <div class="action-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </div>
+              <div class="action-content">
+                <h3>ค้นหาบริการ</h3>
+                <p>瀏覽服務ที่เปิดรับ</p>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <section class="dashboard-section">
+          <div class="section-header">
+            <h2>กิจกรรมล่าสุด</h2>
+            <a href="/pages/activity.html" class="btn btn-link">ดูทั้งหมด</a>
+          </div>
+          <div class="activity-list" id="activity-list">
+            <!-- Activity will be loaded here -->
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer id="site-footer"></footer>
+  </div>
+
+  <script type="module">
+    import { initAuth, supabase, isAuthenticated, isProvider, isSeeker, getUserProfile, formatTHB, formatRelativeTime, escapeHtml, showToast, POST_STATUS, BID_STATUS } from '/js/auth.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initAuth();
+
+      // Check auth
+      if (!isAuthenticated()) {
+        showToast('กรุณาเข้าสู่ระบบก่อน', 'warning');
+        setTimeout(() => {
+          window.location.href = '/pages/login.html?redirect=' + encodeURIComponent(window.location.href);
+        }, 1500);
+        return;
+      }
+
+      // Load shared components
+      const [headerRes, footerRes] = await Promise.all([
+        fetch('/header.html'),
+        fetch('/footer.html')
+      ]);
+      document.getElementById('site-header').innerHTML = await headerRes.text();
+      document.getElementById('site-footer').innerHTML = await footerRes.text();
+
+      await loadDashboard();
+    });
+
+    async function loadDashboard() {
+      const user = supabase.auth.getUser();
+      const profile = getUserProfile();
+
+      // Welcome message
+      document.getElementById('welcome-message').textContent =
+        `สวัสดี ${escapeHtml(profile?.full_name || 'ผู้ใช้')} (${profile?.role === 'provider' ? 'ผู้ให้บริการ' : 'ผู้ใช้ทั่วไป'})`;
+
+      // Load stats
+      await loadStats();
+
+      // Load recent activity
+      await loadActivity();
+    }
+
+    async function loadStats() {
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      if (!userId) return;
+
+      try {
+        const [postsRes, bidsRes] = await Promise.all([
+          supabase.from('posts').select('status', { count: 'exact' }).eq('user_id', userId),
+          supabase.from('bids').select('status', { count: 'exact' }).eq('user_id', userId)
+        ]);
+
+        const posts = postsRes.data || [];
+        const bids = bidsRes.data || [];
+
+        const stats = {
+          totalPosts: posts.length,
+          openPosts: posts.filter(p => p.status === 'open').length,
+          inProgressPosts: posts.filter(p => p.status === 'in_progress').length,
+          completedPosts: posts.filter(p => p.status === 'completed').length,
+          totalBids: bids.length,
+          pendingBids: bids.filter(b => b.status === 'pending').length,
+          acceptedBids: bids.filter(b => b.status === 'accepted').length,
+          rejectedBids: bids.filter(b => b.status === 'rejected').length
+        };
+
+        renderStats(stats);
+      } catch (err) {
+        console.error('Load stats error:', err);
+      }
+    }
+
+    function renderStats(stats) {
+      const grid = document.getElementById('stats-grid');
+      const isProv = isProvider();
+
+      if (isProv) {
+        grid.innerHTML = `
+          <div class="stat-card">
+            <div class="stat-card-icon primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v10"></path>
+                <path d="M3 19h18"></path>
+                <path d="M7 19v-6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v6"></path>
+              </svg>
+            </div>
+            <div class="stat-card-info">
+              <div class="stat-card-value">${stats.totalBids}</div>
+              <div class="stat-card-label">ใบเสนอราคาทั้งหมด</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon warning">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <div class="stat-card-info">
+              <div class="stat-card-value">${stats.pendingBids}</div>
+              <div class="stat-card-label">รอพิจารณา</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon success">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <div class="stat-card-info">
+              <div class="stat-card-value">${stats.acceptedBids}</div>
+              <div class="stat-card-label">ถูกยอมรับ</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon danger">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+              </svg>
+            </div>
+            <div class="stat-card-info">
+              <div class="stat-card-value">${stats.rejectedBids}</div>
+              <div class="stat-card-label">ถูกปฏิเสธ</div>
+            </div>
+          </div>
+        `;
+      } else {
+        grid.innerHTML = `
+          <div class="stat-card">
+            <div class="stat-card-icon primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></path>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+            </div>
+            <div class="stat-card-info">
+              <div class="stat-card-value">${stats.totalPosts}</div>
+              <div class="stat-card-label">กระทู้ทั้งหมด</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon info">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <div class="stat-card-info">
+              <div class="stat-card-value">${stats.openPosts}</div>
+              <div class="stat-card-label">เปิดรับราคา</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon warning">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <div class="stat-card-info">
+              <div class="stat-card-value">${stats.inProgressPosts}</div>
+              <div class="stat-card-label">กำลังดำเนินการ</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon success">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <div class="stat-card-info">
+              <div class="stat-card-value">${stats.completedPosts}</div>
+              <div class="stat-card-label">เสร็จสิ้น</div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    async function loadActivity() {
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      if (!userId) return;
+
+      try {
+        const isProv = isProvider();
+
+        if (isProv) {
+          // Provider: recent bids
+          const { data: bids } = await supabase
+            .from('bids')
+            .select(`
+              *,
+              posts(title, vehicle_type, service_type, status)
+            `)
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(10);
+
+          renderActivity(bids || [], 'bid');
+        } else {
+          // Seeker: recent posts
+          const { data: posts } = await supabase
+            .from('posts')
+            .select(`
+              *,
+              bids(count)
+            `)
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(10);
+
+          renderActivity(posts || [], 'post');
+        }
+      } catch (err) {
+        console.error('Load activity error:', err);
+      }
+    }
+
+    function renderActivity(items, type) {
+      const list = document.getElementById('activity-list');
+
+      if (items.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state" style="padding: var(--space-8);">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <p class="empty-state-message">ยังไม่มีกิจกรรม</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = items.map(item => {
+        if (type === 'bid') {
+          const post = item.posts;
+          const statusLabel = getBidStatusLabel(item.status);
+          const statusClass = getBidStatusBadgeClass(item.status);
+
+          return `
+            <div class="activity-item">
+              <div class="activity-icon ${statusClass.replace('badge-', '')}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v10"></path>
+                  <path d="M3 19h18"></path>
+                  <path d="M7 19v-6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v6"></path>
+                </svg>
+              </div>
+              <div class="activity-content">
+                <div class="activity-title">เสนอราคา: ${escapeHtml(post?.title || 'กระทู้ที่ลบแล้ว')}</div>
+                <div class="activity-meta">
+                  <span class="badge ${statusClass}">${statusLabel}</span>
+                  <span>${formatRelativeTime(item.created_at)}</span>
+                </div>
+                <div class="activity-price">${formatTHB(item.price)}</div>
+              </div>
+              <a href="/pages/post.html?id=${item.post_id}" class="btn btn-ghost btn-sm">ดูรายละเอียด</a>
+            </div>
+          `;
+        } else {
+          const bidCount = item.bids?.[0]?.count || 0;
+          const statusLabel = getPostStatusLabel(item.status);
+          const statusClass = getPostStatusBadgeClass(item.status);
+
+          return `
+            <div class="activity-item">
+              <div class="activity-icon ${statusClass.replace('badge-', '')}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+              </div>
+              <div class="activity-content">
+                <div class="activity-title">${escapeHtml(item.title)}</div>
+                <div class="activity-meta">
+                  <span class="badge ${statusClass}">${statusLabel}</span>
+                  <span>${bidCount} ใบเสนอราคา</span>
+                  <span>${formatRelativeTime(item.created_at)}</span>
+                </div>
+              </div>
+              <a href="/pages/post.html?id=${item.id}" class="btn btn-ghost btn-sm">ดูรายละเอียด</a>
+            </div>
+          `;
+        }
+      }).join('');
+    }
+
+    function getPostStatusLabel(status) {
+      const labels = {
+        'open': 'เปิดรับเสนอราคา',
+        'in_progress': 'กำลังดำเนินการ',
+        'completed': 'เสร็จสิ้น',
+        'cancelled': 'ยกเลิกแล้ว'
+      };
+      return labels[status] || status;
+    }
+
+    function getPostStatusBadgeClass(status) {
+      const classes = {
+        'open': 'badge-success',
+        'in_progress': 'badge-warning',
+        'completed': 'badge-primary',
+        'cancelled': 'badge-gray'
+      };
+      return classes[status] || 'badge-gray';
+    }
+
+    function getBidStatusLabel(status) {
+      const labels = {
+        'pending': 'รอพิจารณา',
+        'accepted': 'ยอมรับแล้ว',
+        'rejected': 'ถูกปฏิเสธ',
+        'withdrawn': 'ถอนเอง'
+      };
+      return labels[status] || status;
+    }
+
+    function getBidStatusBadgeClass(status) {
+      const classes = {
+        'pending': 'badge-warning',
+        'accepted': 'badge-success',
+        'rejected': 'badge-danger',
+        'withdrawn': 'badge-gray'
+      };
+      return classes[status] || 'badge-gray';
+    }
+  </script>
+
+  <style>
+    .dashboard-page {
+      padding: var(--space-8) 0 var(--space-16);
+    }
+
+    .dashboard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      margin-bottom: var(--space-8);
+    }
+
+    .dashboard-header h1 {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+    }
+
+    .dashboard-subtitle {
+      color: var(--color-text-secondary);
+      margin-top: var(--space-1);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-8);
+    }
+
+    @media (min-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .stat-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5);
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .stat-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .stat-card-icon.primary { background: var(--color-primary); }
+    .stat-card-icon.success { background: var(--color-secondary); }
+    .stat-card-icon.warning { background: var(--color-warning); }
+    .stat-card-icon.danger { background: var(--color-danger); }
+    .stat-card-icon.info { background: var(--color-info); }
+
+    .stat-card-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .stat-card-value {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text);
+      line-height: 1.2;
+    }
+
+    .stat-card-label {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .dashboard-section {
+      margin-bottom: var(--space-10);
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-4);
+    }
+
+    @media (min-width: 768px) {
+      .quick-actions {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .action-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: var(--space-6) var(--space-4);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      text-decoration: none;
+      transition: all var(--transition-base);
+    }
+
+    .action-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .action-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-lg);
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--space-3);
+    }
+
+    .action-icon svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .action-content h3 {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text);
+      margin-bottom: var(--space-1);
+    }
+
+    .action-content p {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition-fast);
+    }
+
+    .activity-item:hover {
+      border-color: var(--color-primary-light);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .activity-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .activity-icon.success { background: var(--color-secondary); }
+    .activity-icon.warning { background: var(--color-warning); }
+    .activity-icon.danger { background: var(--color-danger); }
+    .activity-icon.primary { background: var(--color-primary); }
+    .activity-icon.info { background: var(--color-info); }
+    .activity-icon.gray { background: var(--color-text-muted); }
+
+    .activity-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .activity-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .activity-title {
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text);
+      margin-bottom: var(--space-1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .activity-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      font-size: var(--font-size-xs);
+    }
+
+    .activity-price {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+      white-space: nowrap;
+    }
+
+    @media (max-width: 639px) {
+      .activity-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .activity-price {
+        margin-top: var(--space-2);
+      }
+    }
+  </style>
+</body>
+</html>

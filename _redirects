@@ -1,0 +1,11 @@
+# Cloudflare Pages Redirects
+# https://developers.cloudflare.com/pages/platform/redirects/
+
+# SPA fallback for client-side routing (if needed later)
+# /* /index.html 200
+
+# Legacy URL redirects (if any)
+# /old-page /new-page 301
+
+# API redirects to Supabase (if using Cloudflare Workers as proxy)
+# /api/* https://your-project.supabase.co/rest/v1/* 200

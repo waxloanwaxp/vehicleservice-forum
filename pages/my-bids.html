@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบเสนอราคาของฉัน - VehicleService Forum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <script type="importmap" src="/importmap.json"></script>
+</head>
+<body>
+  <div id="app">
+    <header id="site-header"></header>
+
+    <main id="main-content" class="my-bids-page">
+      <div class="container">
+        <div class="page-header">
+          <h1>ใบเสนอราคาของฉัน</h1>
+          <p>จัดการและติดตามใบเสนอราคาที่คุณส่งไป</p>
+        </div>
+
+        <!-- Filter Tabs -->
+        <nav class="filter-tabs" aria-label="กรองตามสถานะ">
+          <button class="filter-tab active" data-status="all">ทั้งหมด</button>
+          <button class="filter-tab" data-status="pending">รอพิจารณา</button>
+          <button class="filter-tab" data-status="accepted">ถูกยอมรับ</button>
+          <button class="filter-tab" data-status="rejected">ถูกปฏิเสธ</button>
+          <button class="filter-tab" data-status="withdrawn">ถอนเอง</button>
+        </nav>
+
+        <!-- Stats Summary -->
+        <div class="bids-stats" id="bids-stats">
+          <!-- Stats will be loaded here -->
+        </div>
+
+        <!-- Bids List -->
+        <div class="bids-list" id="bids-list">
+          <!-- Bids will be loaded here -->
+        </div>
+
+        <!-- Pagination -->
+        <nav class="pagination" id="pagination" aria-label="การแบ่งหน้า"></nav>
+      </div>
+    </main>
+
+    <footer id="site-footer"></footer>
+  </div>
+
+  <script type="module">
+    import { initAuth, supabase, isAuthenticated, isProvider, showToast, formatTHB, formatRelativeTime, escapeHtml, BID_STATUS, confirmDialog } from '/js/auth.js';
+
+    let currentPage = 1;
+    const PAGE_SIZE = 10;
+    let currentStatus = 'all';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initAuth();
+
+      // Check auth and provider role
+      if (!isAuthenticated()) {
+        showToast('กรุณาเข้าสู่ระบบก่อน', 'warning');
+        setTimeout(() => {
+          window.location.href = '/pages/login.html?redirect=' + encodeURIComponent(window.location.href);
+        }, 1500);
+        return;
+      }
+
+      if (!isProvider()) {
+        showToast('หน้านี้สำหรับผู้ให้บริการเท่านั้น', 'error');
+        setTimeout(() => window.location.href = '/pages/dashboard.html', 1500);
+        return;
+      }
+
+      // Load shared components
+      const [headerRes, footerRes] = await Promise.all([
+        fetch('/header.html'),
+        fetch('/footer.html')
+      ]);
+      document.getElementById('site-header').innerHTML = await headerRes.text();
+      document.getElementById('site-footer').innerHTML = await footerRes.text();
+
+      // Tab click handlers
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          currentStatus = tab.dataset.status;
+          currentPage = 1;
+          loadBids();
+        });
+      });
+
+      await loadBids();
+      await loadStats();
+    });
+
+    async function loadBids() {
+      const list = document.getElementById('bids-list');
+      list.innerHTML = renderSkeletons(5);
+
+      try {
+        const user = (await supabase.auth.getUser()).data.user;
+        if (!user) return;
+
+        let query = supabase
+          .from('bids')
+          .select(`
+            *,
+            posts!inner(
+              id, title, vehicle_type, service_type, status, images,
+              user_profiles!inner(full_name, province, district)
+            )
+          `, { count: 'exact' })
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (currentStatus !== 'all') {
+          query = query.eq('status', currentStatus);
+        }
+
+        const from = (currentPage - 1) * PAGE_SIZE;
+        const to = from + PAGE_SIZE - 1;
+        query = query.range(from, to);
+
+        const { data: bids, error, count } = await query;
+
+        if (error) throw error;
+
+        renderBids(bids || []);
+        renderPagination(count || 0);
+      } catch (err) {
+        console.error('Load bids error:', err);
+        list.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <h3 class="empty-state-title">ไม่สามารถโหลดข้อมูลได้</h3>
+            <p class="empty-state-message">${err.message}</p>
+            <button class="btn btn-primary" onclick="loadBids()">ลองใหม่</button>
+          </div>
+        `;
+      }
+    }
+
+    async function loadStats() {
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) return;
+
+      try {
+        const { data: bids } = await supabase
+          .from('bids')
+          .select('status')
+          .eq('user_id', user.id);
+
+        const stats = {
+          all: bids?.length || 0,
+          pending: bids?.filter(b => b.status === 'pending').length || 0,
+          accepted: bids?.filter(b => b.status === 'accepted').length || 0,
+          rejected: bids?.filter(b => b.status === 'rejected').length || 0,
+          withdrawn: bids?.filter(b => b.status === 'withdrawn').length || 0
+        };
+
+        renderStats(stats);
+      } catch (err) {
+        console.error('Load stats error:', err);
+      }
+    }
+
+    function renderStats(stats) {
+      const container = document.getElementById('bids-stats');
+      container.innerHTML = `
+        <div class="stat-chip ${currentStatus === 'all' ? 'active' : ''}" data-status="all">
+          <span class="stat-chip-label">ทั้งหมด</span>
+          <span class="stat-chip-value">${stats.all}</span>
+        </div>
+        <div class="stat-chip ${currentStatus === 'pending' ? 'active' : ''}" data-status="pending">
+          <span class="stat-chip-label">รอพิจารณา</span>
+          <span class="stat-chip-value">${stats.pending}</span>
+        </div>
+        <div class="stat-chip ${currentStatus === 'accepted' ? 'active' : ''}" data-status="accepted">
+          <span class="stat-chip-label">ยอมรับ</span>
+          <span class="stat-chip-value">${stats.accepted}</span>
+        </div>
+        <div class="stat-chip ${currentStatus === 'rejected' ? 'active' : ''}" data-status="rejected">
+          <span class="stat-chip-label">ปฏิเสธ</span>
+          <span class="stat-chip-value">${stats.rejected}</span>
+        </div>
+        <div class="stat-chip ${currentStatus === 'withdrawn' ? 'active' : ''}" data-status="withdrawn">
+          <span class="stat-chip-label">ถอน</span>
+          <span class="stat-chip-value">${stats.withdrawn}</span>
+        </div>
+      `;
+
+      // Make stat chips clickable
+      container.querySelectorAll('.stat-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          currentStatus = chip.dataset.status;
+          currentPage = 1;
+          document.querySelectorAll('.filter-tab').forEach(t => {
+            t.classList.toggle('active', t.dataset.status === currentStatus);
+          });
+          loadBids();
+        });
+      });
+    }
+
+    function renderBids(bids) {
+      const list = document.getElementById('bids-list');
+
+      if (bids.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1; padding: var(--space-12);">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v10"></path>
+              <path d="M3 19h18"></path>
+              <path d="M7 19v-6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v6"></path>
+            </svg>
+            <h3 class="empty-state-title">${currentStatus === 'all' ? 'คุณยังไม่ได้เสนอราคา' : 'ไม่มีใบเสนอราคาในสถานะนี้'}</h3>
+            <p class="empty-state-message">
+              ${currentStatus === 'all'
+                ? 'เริ่มต้นด้วยการค้นหากระทู้และเสนอราคา'
+                : 'ลองเปลี่ยนตัวกรองสถานะอื่น'}
+            </p>
+            <a href="/pages/browse.html" class="btn btn-primary" style="margin-top: var(--space-4);">
+              ไปค้นหาบริการ
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = bids.map(bid => renderBidCard(bid)).join('');
+
+      // Event listeners
+      list.querySelectorAll('.withdraw-btn').forEach(btn => {
+        btn.addEventListener('click', () => withdrawBid(btn.dataset.id));
+      });
+
+      list.querySelectorAll('.view-post-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          window.location.href = `/pages/post.html?id=${btn.dataset.postId}`;
+        });
+      });
+    }
+
+    function renderBidCard(bid) {
+      const post = bid.posts;
+      const statusLabel = getStatusLabel(bid.status);
+      const statusClass = getStatusBadgeClass(bid.status);
+      const imageUrl = post?.images?.[0];
+      const seeker = post?.user_profiles;
+
+      const canWithdraw = bid.status === 'pending';
+      const isAccepted = bid.status === 'accepted';
+
+      return `
+        <article class="bid-card ${isAccepted ? 'accepted' : ''}" data-id="${bid.id}">
+          <div class="bid-card-main">
+            ${imageUrl ? `
+              <div class="bid-card-image">
+                <img src="${imageUrl}" alt="" loading="lazy">
+              </div>
+            ` : ''}
+            <div class="bid-card-content">
+              <div class="bid-card-header">
+                <h3 class="bid-card-title">${escapeHtml(post?.title || 'กระทู้ที่ลบแล้ว')}</h3>
+                <span class="badge ${statusClass}">${statusLabel}</span>
+              </div>
+              <div class="bid-card-meta">
+                <span class="bid-card-category">
+                  ${getVehicleTypeLabel(post?.vehicle_type)} • ${getServiceTypeLabel(post?.service_type)}
+                </span>
+                <span class="bid-card-location">
+                  ${seeker?.district ? `${seeker.district}, ` : ''}${seeker?.province || ''}
+                </span>
+                <span class="bid-card-date">${formatRelativeTime(bid.created_at)}</span>
+              </div>
+              <p class="bid-card-message">${escapeHtml(bid.message?.substring(0, 120) || '')}...</p>
+              ${bid.timeline ? `<span class="bid-card-timeline">ระยะเวลาประมาณ: ${bid.timeline} วัน</span>` : ''}
+            </div>
+          </div>
+          <div class="bid-card-sidebar">
+            <div class="bid-card-price">${formatTHB(bid.price)}</div>
+            <div class="bid-card-actions">
+              <a href="/pages/post.html?id=${post?.id}" class="btn btn-ghost btn-sm view-post-btn" data-post-id="${post?.id}">
+                ดูกระทู้
+              </a>
+              ${canWithdraw ? `
+                <button class="btn btn-danger btn-sm withdraw-btn" data-id="${bid.id}">
+                  ถอนใบเสนอราคา
+                </button>
+              ` : ''}
+              ${isAccepted ? `
+                <button class="btn btn-success btn-sm" disabled>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                  ถูกเลือกแล้ว
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderSkeletons(count) {
+      return Array(count).fill(0).map(() => `
+        <article class="bid-card skeleton-bid">
+          <div class="bid-card-main">
+            <div class="skeleton" style="width: 100px; height: 75px; border-radius: var(--radius-md);"></div>
+            <div class="bid-card-content" style="flex: 1;">
+              <div class="skeleton skeleton-title" style="width: 60%;"></div>
+              <div class="skeleton skeleton-text" style="width: 40%; margin-top: var(--space-2);"></div>
+              <div class="skeleton skeleton-text" style="width: 80%; margin-top: var(--space-2);"></div>
+            </div>
+          </div>
+          <div class="bid-card-sidebar">
+            <div class="skeleton" style="width: 100px; height: 36px; border-radius: var(--radius-md);"></div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function renderPagination(total) {
+      const pagination = document.getElementById('pagination');
+      const totalPages = Math.ceil(total / PAGE_SIZE);
+
+      if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+      }
+
+      let html = '';
+
+      html += `<button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} data-page="${currentPage - 1}">«</button>`;
+
+      let startPage = Math.max(1, currentPage - 2);
+      let endPage = Math.min(totalPages, startPage + 4);
+
+      if (startPage > 1) {
+        html += `<button class="pagination-btn" data-page="1">1</button>`;
+        if (startPage > 2) html += `<span class="pagination-ellipsis">...</span>`;
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) html += `<span class="pagination-ellipsis">...</span>`;
+        html += `<button class="pagination-btn" data-page="${totalPages}">${totalPages}</button>`;
+      }
+
+      html += `<button class="pagination-btn" ${currentPage === totalPages ? 'disabled' : ''} data-page="${currentPage + 1}">»</button>`;
+
+      pagination.innerHTML = html;
+
+      pagination.querySelectorAll('.pagination-btn[data-page]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const page = parseInt(btn.dataset.page);
+          if (page !== currentPage && page >= 1 && page <= totalPages) {
+            currentPage = page;
+            loadBids();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        });
+      });
+    }
+
+    async function withdrawBid(bidId) {
+      const confirmed = await confirmDialog(
+        'คุณแน่ใจหรือไม่ว่าต้องการถอนใบเสนอราคานี้?',
+        { title: 'ถอนใบเสนอราคา', danger: true }
+      );
+
+      if (!confirmed) return;
+
+      try {
+        const { error } = await supabase
+          .from('bids')
+          .update({ status: 'withdrawn' })
+          .eq('id', bidId)
+          .eq('user_id', (await supabase.auth.getUser()).data.user.id);
+
+        if (error) throw error;
+
+        showToast('ถอนใบเสนอราคาสำเร็จ', 'success');
+        await loadBids();
+        await loadStats();
+      } catch (err) {
+        console.error('Withdraw bid error:', err);
+        showToast(err.message, 'error');
+      }
+    }
+
+    function getStatusLabel(status) {
+      const labels = {
+        'pending': 'รอพิจารณา',
+        'accepted': 'ยอมรับแล้ว',
+        'rejected': 'ถูกปฏิเสธ',
+        'withdrawn': 'ถอนเอง'
+      };
+      return labels[status] || status;
+    }
+
+    function getStatusBadgeClass(status) {
+      const classes = {
+        'pending': 'badge-warning',
+        'accepted': 'badge-success',
+        'rejected': 'badge-danger',
+        'withdrawn': 'badge-gray'
+      };
+      return classes[status] || 'badge-gray';
+    }
+
+    function getVehicleTypeLabel(type) {
+      const types = {
+        'car': 'รถยนต์',
+        'motorcycle': 'รถจักรยานยนต์',
+        'truck': 'รถบรรทุก',
+        'van': 'รถตู้/วาน',
+        'tractor': 'รถแทรกเตอร์',
+        'other': 'อื่นๆ'
+      };
+      return types[type] || type;
+    }
+
+    function getServiceTypeLabel(type) {
+      const types = {
+        'repair': 'ซ่อมบำรุง',
+        'maintenance': 'บำรุงรักษา',
+        'transport': 'ขนส่ง/ลากรถ',
+        'towing': 'ลากรถช้า/รถยก',
+        'inspection': 'ตรวจสภาพ/ดูแล',
+        'tire': 'เปลี่ยนยาง/ปรับอัดลม',
+        'battery': 'แบตเตอรี่/ระบบไฟฟ้า',
+        'ac': 'ระบบปรับอากาศ',
+        'body': 'งานสี/งานตัวรถ',
+        'other': 'บริการอื่นๆ'
+      };
+      return types[type] || type;
+    }
+  </script>
+
+  <style>
+    .my-bids-page {
+      padding: var(--space-8) 0 var(--space-16);
+    }
+
+    .bids-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-bottom: var(--space-6);
+    }
+
+    .stat-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--space-3) var(--space-4);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      min-width: 80px;
+    }
+
+    .stat-chip:hover {
+      border-color: var(--color-primary);
+    }
+
+    .stat-chip.active {
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+
+    .stat-chip-label {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+    }
+
+    .stat-chip-value {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text);
+    }
+
+    .stat-chip.active .stat-chip-value {
+      color: var(--color-primary);
+    }
+
+    .bids-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .bid-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition-fast);
+    }
+
+    .bid-card.accepted {
+      border-color: var(--color-secondary);
+      background: #ecfdf5;
+    }
+
+    .bid-card:hover {
+      border-color: var(--color-primary-light);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .bid-card-image {
+      width: 100px;
+      height: 75px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .bid-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .bid-card-content {
+      min-width: 0;
+    }
+
+    .bid-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-2);
+    }
+
+    .bid-card-title {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text);
+    }
+
+    .bid-card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-2);
+    }
+
+    .bid-card-category {
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text);
+    }
+
+    .bid-card-message {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-2);
+    }
+
+    .bid-card-timeline {
+      font-size: var(--font-size-xs);
+      color: var(--color-info);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .bid-card-sidebar {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: var(--space-2);
+      flex-shrink: 0;
+    }
+
+    .bid-card-price {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+      white-space: nowrap;
+    }
+
+    .bid-card-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      width: 100%;
+    }
+
+    .skeleton-bid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--space-4);
+      padding: var(--space-4);
+    }
+
+    @media (max-width: 767px) {
+      .bid-card {
+        grid-template-columns: 1fr;
+      }
+
+      .bid-card-image {
+        width: 100%;
+        height: 160px;
+        max-width: 280px;
+        margin: 0 auto;
+      }
+
+      .bid-card-sidebar {
+        align-items: stretch;
+      }
+
+      .bid-card-price {
+        text-align: center;
+      }
+
+      .bid-card-actions {
+        flex-direction: row;
+        justify-content: center;
+      }
+    }
+  </style>
+</body>
+</html>

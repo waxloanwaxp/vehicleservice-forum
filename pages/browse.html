@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ดูบริการทั้งหมด - VehicleService Forum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <script type="importmap" src="/importmap.json"></script>
+</head>
+<body>
+  <div id="app">
+    <header id="site-header"></header>
+
+    <main id="main-content">
+      <!-- Filter Bar -->
+      <section class="filter-bar">
+        <div class="container">
+          <form id="filter-form" class="filter-form">
+            <div class="filter-row">
+              <div class="filter-group">
+                <label class="form-label" for="search">ค้นหา</label>
+                <input type="search" id="search" name="search" class="form-input" placeholder="ค้นหาจากหัวข้อ รายละเอียด...">
+              </div>
+
+              <div class="filter-group">
+                <label class="form-label" for="vehicle_type">ประเภทยานพาหนะ</label>
+                <select id="vehicle_type" name="vehicle_type" class="form-select">
+                  <option value="">ทุกประเภท</option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label class="form-label" for="service_type">ประเภทบริการ</label>
+                <select id="service_type" name="service_type" class="form-select">
+                  <option value="">ทุกประเภท</option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label class="form-label" for="province">จังหวัด</label>
+                <select id="province" name="province" class="form-select">
+                  <option value="">ทุกจังหวัด</option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label class="form-label" for="urgency">ความเร่งด่วน</label>
+                <select id="urgency" name="urgency" class="form-select">
+                  <option value="">ทุกระดับ</option>
+                </select>
+              </div>
+
+              <div class="filter-group filter-actions">
+                <label class="form-label" style="visibility: hidden;">Actions</label>
+                <div style="display: flex; gap: var(--space-2);">
+                  <button type="submit" class="btn btn-primary">กรอง</button>
+                  <a href="/pages/browse.html" class="btn btn-outline">ล้าง</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="filter-row filter-row-secondary">
+              <div class="filter-group">
+                <label class="form-label" for="sort">เรียงตาม</label>
+                <select id="sort" name="sort" class="form-select">
+                  <option value="newest">ล่าสุด</option>
+                  <option value="oldest">เก่าสุด</option>
+                  <option value="most_bids">ใบเสนอราคามากที่สุด</option>
+                  <option value="urgent_first">เร่งด่วนก่อน</option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label class="form-label" for="price_min">ราคาต่ำสุด (บาท)</label>
+                <input type="number" id="price_min" name="price_min" class="form-input" placeholder="0" min="0">
+              </div>
+
+              <div class="filter-group">
+                <label class="form-label" for="price_max">ราคาสูงสุด (บาท)</label>
+                <input type="number" id="price_max" name="price_max" class="form-input" placeholder="ไม่จำกัด" min="0">
+              </div>
+
+              <div class="filter-group">
+                <label class="form-label" for="date_from">ตั้งแต่วันที่</label>
+                <input type="date" id="date_from" name="date_from" class="form-input">
+              </div>
+
+              <div class="filter-group">
+                <label class="form-label" for="date_to">ถึงวันที่</label>
+                <input type="date" id="date_to" name="date_to" class="form-input">
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Results -->
+      <section class="results-section">
+        <div class="container">
+          <div class="results-header">
+            <h2>ผลการค้นหา</h2>
+            <div class="results-info">
+              <span id="results-count">กำลังโหลด...</span>
+              <div class="view-toggle" role="group" aria-label="เปลี่ยนมุมมอง">
+                <button type="button" class="view-btn active" data-view="grid" aria-label="มุมมองกริด">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                  </svg>
+                </button>
+                <button type="button" class="view-btn" data-view="list" aria-label="มุมมองรายการ">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="posts-grid" id="posts-grid" role="list">
+            <!-- Posts will be loaded here -->
+          </div>
+
+          <!-- Pagination -->
+          <nav class="pagination" id="pagination" aria-label="การแบ่งหน้า"></nav>
+        </div>
+      </section>
+    </main>
+
+    <footer id="site-footer"></footer>
+  </div>
+
+  <script type="module">
+    import { initAuth, supabase, showToast, formatTHB, formatRelativeTime, VEHICLE_TYPES, SERVICE_TYPES, URGENCY_LEVELS, THAI_PROVINCES, debounce } from '/js/auth.js';
+
+    let currentPage = 1;
+    const PAGE_SIZE = 12;
+    let currentView = 'grid';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initAuth();
+
+      // Load shared components
+      const [headerRes, footerRes] = await Promise.all([
+        fetch('/header.html'),
+        fetch('/footer.html')
+      ]);
+      document.getElementById('site-header').innerHTML = await headerRes.text();
+      document.getElementById('site-footer').innerHTML = await footerRes.text();
+
+      // Initialize filter dropdowns
+      initFilterDropdowns();
+
+      // Load posts
+      await loadPosts();
+
+      // Event listeners
+      document.getElementById('filter-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        currentPage = 1;
+        loadPosts();
+      });
+
+      document.getElementById('sort').addEventListener('change', () => {
+        currentPage = 1;
+        loadPosts();
+      });
+
+      // View toggle
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentView = btn.dataset.view;
+          document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById('posts-grid').classList.toggle('list-view', currentView === 'list');
+        });
+      });
+
+      // Debounced search
+      const searchInput = document.getElementById('search');
+      searchInput.addEventListener('input', debounce(() => {
+        currentPage = 1;
+        loadPosts();
+      }, 300));
+    });
+
+    function initFilterDropdowns() {
+      // Vehicle types
+      const vehicleSelect = document.getElementById('vehicle_type');
+      VEHICLE_TYPES.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.id;
+        opt.textContent = v.name;
+        vehicleSelect.appendChild(opt);
+      });
+
+      // Service types
+      const serviceSelect = document.getElementById('service_type');
+      SERVICE_TYPES.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = s.name;
+        serviceSelect.appendChild(opt);
+      });
+
+      // Provinces
+      const provinceSelect = document.getElementById('province');
+      THAI_PROVINCES.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        provinceSelect.appendChild(opt);
+      });
+
+      // Urgency
+      const urgencySelect = document.getElementById('urgency');
+      URGENCY_LEVELS.forEach(u => {
+        const opt = document.createElement('option');
+        opt.value = u.id;
+        opt.textContent = u.name;
+        urgencySelect.appendChild(opt);
+      });
+    }
+
+    async function loadPosts() {
+      const grid = document.getElementById('posts-grid');
+      grid.innerHTML = renderSkeletons(6);
+      grid.classList.toggle('list-view', currentView === 'list');
+
+      try {
+        const params = getFilterParams();
+        params.page = currentPage;
+        params.limit = PAGE_SIZE;
+
+        // Build Supabase query
+        let query = supabase
+          .from('posts')
+          .select(`
+            *,
+            user_profiles!inner(full_name, avatar_url, province, district),
+            bids(count)
+          `, { count: 'exact' })
+          .eq('status', 'open')
+          .order('created_at', { ascending: false });
+
+        // Apply filters
+        if (params.search) {
+          query = query.or(`title.ilike.%${params.search}%,description.ilike.%${params.search}%`);
+        }
+        if (params.vehicle_type) query = query.eq('vehicle_type', params.vehicle_type);
+        if (params.service_type) query = query.eq('service_type', params.service_type);
+        if (params.province) query = query.eq('user_profiles.province', params.province);
+        if (params.urgency) query = query.eq('urgency', params.urgency);
+        if (params.price_min) query = query.gte('budget_min', params.price_min);
+        if (params.price_max) query = query.lte('budget_max', params.price_max);
+        if (params.date_from) query = query.gte('created_at', params.date_from);
+        if (params.date_to) query = query.lte('created_at', params.date_to + 'T23:59:59');
+
+        // Pagination
+        const from = (currentPage - 1) * PAGE_SIZE;
+        const to = from + PAGE_SIZE - 1;
+        query = query.range(from, to);
+
+        // Sorting
+        switch (params.sort) {
+          case 'oldest':
+            query = query.order('created_at', { ascending: true });
+            break;
+          case 'most_bids':
+            query = query.order('bids.count', { ascending: false });
+            break;
+          case 'urgent_first':
+            query = query.order('urgency', { ascending: false }).order('created_at', { ascending: false });
+            break;
+          default:
+            query = query.order('created_at', { ascending: false });
+        }
+
+        const { data: posts, error, count } = await query;
+
+        if (error) throw error;
+
+        renderPosts(posts || []);
+        renderPagination(count || 0);
+        updateResultsCount(count || 0);
+      } catch (err) {
+        console.error('Load posts error:', err);
+        grid.innerHTML = `
+          <div class="empty-state">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <h3 class="empty-state-title">ไม่สามารถโหลดข้อมูลได้</h3>
+            <p class="empty-state-message">${err.message}</p>
+            <button class="btn btn-primary" onclick="loadPosts()">ลองใหม่</button>
+          </div>
+        `;
+      }
+    }
+
+    function getFilterParams() {
+      const form = document.getElementById('filter-form');
+      const formData = new FormData(form);
+      const params = {};
+
+      for (const [key, value] of formData.entries()) {
+        if (value) params[key] = value;
+      }
+
+      return params;
+    }
+
+    function renderPosts(posts) {
+      const grid = document.getElementById('posts-grid');
+
+      if (posts.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <h3 class="empty-state-title">ไม่พบกระทู้ที่ตรงตามเงื่อนไข</h3>
+            <p class="empty-state-message">ลองปรับเงื่อนไขการค้นหาหรือกรองใหม่</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = posts.map(post => renderPostCard(post)).join('');
+    }
+
+    function renderPostCard(post) {
+      const vehicle = VEHICLE_TYPES.find(v => v.id === post.vehicle_type) || { name: post.vehicle_type };
+      const service = SERVICE_TYPES.find(s => s.id === post.service_type) || { name: post.service_type };
+      const urgency = URGENCY_LEVELS.find(u => u.id === post.urgency) || { name: post.urgency, color: 'var(--color-info)' };
+      const bidCount = post.bids?.[0]?.count || 0;
+      const author = post.user_profiles;
+      const imageUrl = post.images?.[0] || null;
+
+      const categoryLabel = `${vehicle.name} • ${service.name}`;
+
+      return `
+        <article class="post-card" role="listitem">
+          ${imageUrl ? `
+            <a href="/pages/post.html?id=${post.id}" class="post-card-image-link">
+              <img src="${imageUrl}" alt="" class="post-card-image" loading="lazy">
+            </a>
+          ` : `
+            <a href="/pages/post.html?id=${post.id}" class="post-card-image-link">
+              <div class="post-card-image" style="display:flex;align-items:center;justify-content:center;color:var(--color-text-muted);">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+              </div>
+            </a>
+          `}
+          <div class="post-card-content">
+            <div class="post-card-meta">
+              <span class="post-card-category">${categoryLabel}</span>
+              <span class="badge" style="background: ${urgency.color}; color: white;">${urgency.name}</span>
+              <span>${formatRelativeTime(post.created_at)}</span>
+            </div>
+            <h3 class="post-card-title">
+              <a href="/pages/post.html?id=${post.id}" style="color: inherit; text-decoration: none;">${escapeHtml(post.title)}</a>
+            </h3>
+            <p class="post-card-excerpt">${escapeHtml(post.description?.substring(0, 120) || '')}...</p>
+            <div class="post-card-footer">
+              <div class="post-card-author">
+                <span class="post-card-author-avatar">${author?.full_name?.[0]?.toUpperCase() || 'U'}</span>
+                <span class="post-card-author-name">${escapeHtml(author?.full_name || 'ผู้ใช้')}</span>
+              </div>
+              <div class="post-card-stats">
+                <span class="post-card-stat">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v10"></path>
+                    <path d="M3 19h18"></path>
+                    <path d="M7 19v-6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v6"></path>
+                  </svg>
+                  ${bidCount}
+                </span>
+                <span class="post-card-stat">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                  ${author?.district ? `${author.district}, ${author.province}` : author?.province || 'ไม่ระบุ'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderSkeletons(count) {
+      return Array(count).fill(0).map(() => `
+        <article class="post-card skeleton-card">
+          <div class="skeleton skeleton-image"></div>
+          <div class="post-card-content">
+            <div class="post-card-meta">
+              <div class="skeleton skeleton-text" style="width: 120px; height: 24px;"></div>
+              <div class="skeleton skeleton-text" style="width: 60px; height: 24px;"></div>
+            </div>
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text" style="width: 80%;"></div>
+            <div class="post-card-footer">
+              <div class="skeleton skeleton-text" style="width: 100px; height: 28px; border-radius: 50%;"></div>
+              <div class="skeleton skeleton-text" style="width: 150px; height: 16px;"></div>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function renderPagination(total) {
+      const pagination = document.getElementById('pagination');
+      const totalPages = Math.ceil(total / PAGE_SIZE);
+
+      if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+      }
+
+      let html = '';
+
+      // Previous
+      html += `<button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} data-page="${currentPage - 1}" aria-label="หน้าก่อนหน้า">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>`;
+
+      // Page numbers
+      let startPage = Math.max(1, currentPage - 2);
+      let endPage = Math.min(totalPages, startPage + 4);
+      if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+      if (startPage > 1) {
+        html += `<button class="pagination-btn" data-page="1">1</button>`;
+        if (startPage > 2) html += `<span class="pagination-ellipsis">...</span>`;
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) html += `<span class="pagination-ellipsis">...</span>`;
+        html += `<button class="pagination-btn" data-page="${totalPages}">${totalPages}</button>`;
+      }
+
+      // Next
+      html += `<button class="pagination-btn" ${currentPage === totalPages ? 'disabled' : ''} data-page="${currentPage + 1}" aria-label="หน้าถัดไป">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>`;
+
+      pagination.innerHTML = html;
+
+      pagination.querySelectorAll('.pagination-btn[data-page]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const page = parseInt(btn.dataset.page);
+          if (page !== currentPage && page >= 1 && page <= totalPages) {
+            currentPage = page;
+            loadPosts();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        });
+      });
+    }
+
+    function updateResultsCount(count) {
+      document.getElementById('results-count').textContent =
+        `พบ ${count} รายการ • หน้า ${currentPage} จาก ${Math.ceil(count / PAGE_SIZE) || 1}`;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+
+  <style>
+    /* Additional styles for browse page */
+    .filter-bar {
+      background: var(--color-bg-card);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--space-4) 0;
+    }
+
+    .filter-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--space-3);
+      align-items: end;
+    }
+
+    .filter-row-secondary {
+      display: none;
+    }
+
+    .filter-row-secondary.expanded {
+      display: grid;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    .filter-group .form-label {
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .filter-actions {
+      flex-direction: row !important;
+      align-items: end;
+    }
+
+    .results-section {
+      padding: var(--space-8) 0;
+    }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    .results-header h2 {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .results-info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .view-toggle {
+      display: flex;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .view-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: var(--color-bg-card);
+      color: var(--color-text-secondary);
+      border: none;
+      transition: all var(--transition-fast);
+    }
+
+    .view-btn:hover {
+      background: var(--color-bg-hover);
+      color: var(--color-primary);
+    }
+
+    .view-btn.active {
+      background: var(--color-primary);
+      color: var(--color-text-inverse);
+    }
+
+    .posts-grid.list-view {
+      grid-template-columns: 1fr;
+    }
+
+    .posts-grid.list-view .post-card {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      align-items: start;
+    }
+
+    .posts-grid.list-view .post-card-image-link {
+      aspect-ratio: 4/3;
+    }
+
+    .posts-grid.list-view .post-card-content {
+      padding: var(--space-6);
+    }
+
+    @media (max-width: 767px) {
+      .posts-grid.list-view .post-card {
+        grid-template-columns: 1fr;
+      }
+      .posts-grid.list-view .post-card-image-link {
+        aspect-ratio: 16/9;
+      }
+    }
+
+    .skeleton-card {
+      pointer-events: none;
+    }
+
+    .post-card-image-link {
+      display: block;
+      text-decoration: none;
+    }
+  </style>
+</body>
+</html>

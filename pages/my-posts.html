@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>กระทู้ของฉัน - VehicleService Forum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <script type="importmap" src="/importmap.json"></script>
+</head>
+<body>
+  <div id="app">
+    <header id="site-header"></header>
+
+    <main id="main-content" class="my-posts-page">
+      <div class="container">
+        <div class="page-header">
+          <h1>กระทู้ของฉัน</h1>
+          <p>จัดการกระทู้ที่คุณโพสต์ไว้</p>
+        </div>
+
+        <!-- Filter Tabs -->
+        <nav class="filter-tabs" aria-label="กรองตามสถานะ">
+          <button class="filter-tab active" data-status="all">ทั้งหมด</button>
+          <button class="filter-tab" data-status="open">เปิดรับราคา</button>
+          <button class="filter-tab" data-status="in_progress">กำลังดำเนินการ</button>
+          <button class="filter-tab" data-status="completed">เสร็จสิ้น</button>
+          <button class="filter-tab" data-status="cancelled">ยกเลิกแล้ว</button>
+        </nav>
+
+        <!-- Posts List -->
+        <div class="posts-list" id="posts-list">
+          <!-- Posts will be loaded here -->
+        </div>
+
+        <!-- Pagination -->
+        <nav class="pagination" id="pagination" aria-label="การแบ่งหน้า"></nav>
+      </div>
+    </main>
+
+    <footer id="site-footer"></footer>
+  </div>
+
+  <script type="module">
+    import { initAuth, supabase, isAuthenticated, getUserProfile, showToast, formatTHB, formatRelativeTime, escapeHtml, POST_STATUS, confirmDialog } from '/js/auth.js';
+
+    let currentPage = 1;
+    const PAGE_SIZE = 10;
+    let currentStatus = 'all';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initAuth();
+
+      // Check auth
+      if (!isAuthenticated()) {
+        showToast('กรุณาเข้าสู่ระบบก่อน', 'warning');
+        setTimeout(() => {
+          window.location.href = '/pages/login.html?redirect=' + encodeURIComponent(window.location.href);
+        }, 1500);
+        return;
+      }
+
+      // Load shared components
+      const [headerRes, footerRes] = await Promise.all([
+        fetch('/header.html'),
+        fetch('/footer.html')
+      ]);
+      document.getElementById('site-header').innerHTML = await headerRes.text();
+      document.getElementById('site-footer').innerHTML = await footerRes.text();
+
+      // Tab click handlers
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          currentStatus = tab.dataset.status;
+          currentPage = 1;
+          loadPosts();
+        });
+      });
+
+      await loadPosts();
+    });
+
+    async function loadPosts() {
+      const list = document.getElementById('posts-list');
+      list.innerHTML = renderSkeletons(5);
+
+      try {
+        const user = (await supabase.auth.getUser()).data.user;
+        if (!user) return;
+
+        let query = supabase
+          .from('posts')
+          .select(`
+            *,
+            bids(count)
+          `, { count: 'exact' })
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (currentStatus !== 'all') {
+          query = query.eq('status', currentStatus);
+        }
+
+        const from = (currentPage - 1) * PAGE_SIZE;
+        const to = from + PAGE_SIZE - 1;
+        query = query.range(from, to);
+
+        const { data: posts, error, count } = await query;
+
+        if (error) throw error;
+
+        renderPosts(posts || []);
+        renderPagination(count || 0);
+      } catch (err) {
+        console.error('Load posts error:', err);
+        list.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <h3 class="empty-state-title">ไม่สามารถโหลดข้อมูลได้</h3>
+            <p class="empty-state-message">${err.message}</p>
+            <button class="btn btn-primary" onclick="loadPosts()">ลองใหม่</button>
+          </div>
+        `;
+      }
+    }
+
+    function renderPosts(posts) {
+      const list = document.getElementById('posts-list');
+
+      if (posts.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1; padding: var(--space-12);">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            <h3 class="empty-state-title">${currentStatus === 'all' ? 'คุณยังไม่มีกระทู้' : 'ไม่มีกระทู้ในสถานะนี้'}</h3>
+            <p class="empty-state-message">
+              ${currentStatus === 'all'
+                ? 'เริ่มต้นด้วยการโพสต์หาบริการครั้งแรก'
+                : 'ลองเปลี่ยนตัวกรองสถานะอื่น'}
+            </p>
+            <a href="/pages/create-post.html" class="btn btn-primary" style="margin-top: var(--space-4);">
+              สร้างกระทู้ใหม่
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = posts.map(post => renderPostRow(post)).join('');
+
+      // Event listeners
+      list.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          window.location.href = `/pages/edit-post.html?id=${btn.dataset.id}`;
+        });
+      });
+
+      list.querySelectorAll('.cancel-btn').forEach(btn => {
+        btn.addEventListener('click', () => cancelPost(btn.dataset.id));
+      });
+
+      list.querySelectorAll('.complete-btn').forEach(btn => {
+        btn.addEventListener('click', () => completePost(btn.dataset.id));
+      });
+
+      list.querySelectorAll('.view-bids-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          window.location.href = `/pages/post.html?id=${btn.dataset.id}`;
+        });
+      });
+    }
+
+    function renderPostRow(post) {
+      const bidCount = post.bids?.[0]?.count || 0;
+      const statusLabel = getStatusLabel(post.status);
+      const statusClass = getStatusBadgeClass(post.status);
+      const imageUrl = post.images?.[0];
+
+      const canEdit = post.status === 'open';
+      const canCancel = post.status === 'open' || post.status === 'in_progress';
+      const canComplete = post.status === 'in_progress';
+
+      return `
+        <article class="post-row" data-id="${post.id}">
+          ${imageUrl ? `
+            <div class="post-row-image">
+              <img src="${imageUrl}" alt="" loading="lazy">
+            </div>
+          ` : `
+            <div class="post-row-image" style="display:flex;align-items:center;justify-content:center;background:var(--color-bg);color:var(--color-text-muted);">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+            </div>
+          `}
+          <div class="post-row-content">
+            <div class="post-row-header">
+              <h3 class="post-row-title">${escapeHtml(post.title)}</h3>
+              <span class="badge ${statusClass}">${statusLabel}</span>
+            </div>
+            <div class="post-row-meta">
+              <span>${formatRelativeTime(post.created_at)}</span>
+              <span>${bidCount} ใบเสนอราคา</span>
+              ${post.budget_max ? `<span class="post-row-budget">${formatTHB(post.budget_max)}</span>` : ''}
+            </div>
+            <p class="post-row-excerpt">${escapeHtml(post.description?.substring(0, 100) || '')}...</p>
+          </div>
+          <div class="post-row-actions">
+            <a href="/pages/post.html?id=${post.id}" class="btn btn-ghost btn-sm view-bids-btn" data-id="${post.id}">
+              ดูรายละเอียด
+            </a>
+            ${canEdit ? `<button class="btn btn-outline btn-sm edit-btn" data-id="${post.id}">แก้ไข</button>` : ''}
+            ${canCancel ? `<button class="btn btn-danger btn-sm cancel-btn" data-id="${post.id}">ยกเลิก</button>` : ''}
+            ${canComplete ? `<button class="btn btn-primary btn-sm complete-btn" data-id="${post.id}">เสร็จสิ้น</button>` : ''}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderSkeletons(count) {
+      return Array(count).fill(0).map(() => `
+        <article class="post-row skeleton-row">
+          <div class="skeleton" style="width: 100px; height: 75px; border-radius: var(--radius-md);"></div>
+          <div class="post-row-content" style="flex: 1;">
+            <div class="skeleton skeleton-title" style="width: 60%;"></div>
+            <div class="skeleton skeleton-text" style="width: 40%; margin-top: var(--space-2);"></div>
+            <div class="skeleton skeleton-text" style="width: 80%; margin-top: var(--space-2);"></div>
+          </div>
+          <div class="skeleton" style="width: 100px; height: 36px; border-radius: var(--radius-md);"></div>
+        </article>
+      `).join('');
+    }
+
+    function renderPagination(total) {
+      const pagination = document.getElementById('pagination');
+      const totalPages = Math.ceil(total / PAGE_SIZE);
+
+      if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+      }
+
+      let html = '';
+
+      html += `<button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} data-page="${currentPage - 1}">«</button>`;
+
+      let startPage = Math.max(1, currentPage - 2);
+      let endPage = Math.min(totalPages, startPage + 4);
+
+      if (startPage > 1) {
+        html += `<button class="pagination-btn" data-page="1">1</button>`;
+        if (startPage > 2) html += `<span class="pagination-ellipsis">...</span>`;
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) html += `<span class="pagination-ellipsis">...</span>`;
+        html += `<button class="pagination-btn" data-page="${totalPages}">${totalPages}</button>`;
+      }
+
+      html += `<button class="pagination-btn" ${currentPage === totalPages ? 'disabled' : ''} data-page="${currentPage + 1}">»</button>`;
+
+      pagination.innerHTML = html;
+
+      pagination.querySelectorAll('.pagination-btn[data-page]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const page = parseInt(btn.dataset.page);
+          if (page !== currentPage && page >= 1 && page <= totalPages) {
+            currentPage = page;
+            loadPosts();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        });
+      });
+    }
+
+    async function cancelPost(postId) {
+      const confirmed = await confirmDialog(
+        'การยกเลิกกระทู้จะไม่สามารถย้อนกลับได้ ใบเสนอราคาทั้งหมดจะถูกปฏิเสธ',
+        { title: 'ยกเลิกกระทู้', danger: true }
+      );
+
+      if (!confirmed) return;
+
+      try {
+        const { error } = await supabase
+          .from('posts')
+          .update({ status: 'cancelled' })
+          .eq('id', postId)
+          .eq('user_id', (await supabase.auth.getUser()).data.user.id);
+
+        if (error) throw error;
+
+        showToast('ยกเลิกกระทู้สำเร็จ', 'success');
+        await loadPosts();
+      } catch (err) {
+        console.error('Cancel post error:', err);
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function completePost(postId) {
+      const confirmed = await confirmDialog(
+        'ทำเครื่องหมายกระทู้ว่าเสร็จสิ้น? จะไม่สามารถย้อนกลับได้',
+        { title: 'เสร็จสิ้นงาน', danger: false }
+      );
+
+      if (!confirmed) return;
+
+      try {
+        const { error } = await supabase
+          .from('posts')
+          .update({ status: 'completed' })
+          .eq('id', postId)
+          .eq('user_id', (await supabase.auth.getUser()).data.user.id);
+
+        if (error) throw error;
+
+        showToast('ทำเครื่องหมายเสร็จสิ้นแล้ว', 'success');
+        await loadPosts();
+      } catch (err) {
+        console.error('Complete post error:', err);
+        showToast(err.message, 'error');
+      }
+    }
+
+    function getStatusLabel(status) {
+      const labels = {
+        'open': 'เปิดรับเสนอราคา',
+        'in_progress': 'กำลังดำเนินการ',
+        'completed': 'เสร็จสิ้น',
+        'cancelled': 'ยกเลิกแล้ว'
+      };
+      return labels[status] || status;
+    }
+
+    function getStatusBadgeClass(status) {
+      const classes = {
+        'open': 'badge-success',
+        'in_progress': 'badge-warning',
+        'completed': 'badge-primary',
+        'cancelled': 'badge-gray'
+      };
+      return classes[status] || 'badge-gray';
+    }
+  </script>
+
+  <style>
+    .my-posts-page {
+      padding: var(--space-8) 0 var(--space-16);
+    }
+
+    .filter-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-bottom: var(--space-6);
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: var(--space-4);
+    }
+
+    .filter-tab {
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-full);
+      transition: all var(--transition-fast);
+    }
+
+    .filter-tab:hover {
+      background: var(--color-bg-hover);
+      color: var(--color-text);
+    }
+
+    .filter-tab.active {
+      background: var(--color-primary);
+      color: var(--color-text-inverse);
+      border-color: var(--color-primary);
+    }
+
+    .posts-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .post-row {
+      display: grid;
+      grid-template-columns: 100px 1fr auto;
+      gap: var(--space-4);
+      align-items: center;
+      padding: var(--space-4);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition-fast);
+    }
+
+    .post-row:hover {
+      border-color: var(--color-primary-light);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .post-row-image {
+      width: 100px;
+      height: 75px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .post-row-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .post-row-content {
+      min-width: 0;
+    }
+
+    .post-row-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-2);
+    }
+
+    .post-row-title {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .post-row-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-2);
+    }
+
+    .post-row-budget {
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-primary);
+    }
+
+    .post-row-excerpt {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .post-row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      flex-shrink: 0;
+    }
+
+    .skeleton-row {
+      display: grid;
+      grid-template-columns: 100px 1fr auto;
+      gap: var(--space-4);
+      align-items: center;
+      padding: var(--space-4);
+    }
+
+    @media (max-width: 767px) {
+      .post-row {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .post-row-image {
+        width: 100%;
+        height: 160px;
+        max-width: 280px;
+        margin: 0 auto;
+      }
+
+      .post-row-header {
+        justify-content: center;
+      }
+
+      .post-row-meta {
+        justify-content: center;
+      }
+
+      .post-row-actions {
+        justify-content: center;
+      }
+
+      .skeleton-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</body>
+</html>

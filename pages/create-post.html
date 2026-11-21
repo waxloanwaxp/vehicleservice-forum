@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>โพสต์หาบริการ - VehicleService Forum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <script type="importmap" src="/importmap.json"></script>
+</head>
+<body>
+  <div id="app">
+    <header id="site-header"></header>
+
+    <main id="main-content" class="create-post-page">
+      <div class="container">
+        <div class="page-header">
+          <h1>สร้างกระทู้หาบริการ</h1>
+          <p>กรอกข้อมูลรายละเอียดเพื่อหาผู้ให้บริการที่เหมาะสมที่สุด</p>
+        </div>
+
+        <form id="create-post-form" class="create-post-form" novalidate>
+          <!-- Basic Info -->
+          <fieldset class="form-section">
+            <legend class="section-legend">ข้อมูลพื้นฐาน</legend>
+
+            <div class="form-group">
+              <label class="form-label" for="title">หัวข้อกระทู้ <span class="required">*</span></label>
+              <input type="text" id="title" name="title" class="form-input" placeholder="เช่น ต้องการซ่อมเครื่องยนต์รถยนต์ โทโยต้า คามรี่" required maxlength="120">
+              <span class="form-help">ควรระบุปัญหาหรือบริการที่ต้องการให้ชัดเจน</span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="vehicle_type">ประเภทยานพาหนะ <span class="required">*</span></label>
+                <select id="vehicle_type" name="vehicle_type" class="form-select" required>
+                  <option value="">เลือกประเภท</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="service_type">ประเภทบริการ <span class="required">*</span></label>
+                <select id="service_type" name="service_type" class="form-select" required>
+                  <option value="">เลือกประเภท</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="urgency">ความเร่งด่วน <span class="required">*</span></label>
+              <select id="urgency" name="urgency" class="form-select" required>
+                <option value="">เลือกระดับ</option>
+              </select>
+            </div>
+          </fieldset>
+
+          <!-- Vehicle Details -->
+          <fieldset class="form-section">
+            <legend class="section-legend">รายละเอียดยานพาหนะ (เพิ่มเติม - ช่วยให้ผู้ให้บริการประเมินราคาแม่นยำขึ้น)</legend>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="brand">ยี่ห้อ/รุ่น</label>
+                <input type="text" id="brand" name="brand" class="form-input" placeholder="เช่น โทโยต้า คามรี่ 2.5 G">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="year">ปีที่ผลิต</label>
+                <input type="number" id="year" name="year" class="form-input" placeholder="2560" min="2500" max="2570">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="mileage">เลขไมล์ (กม.)</label>
+                <input type="number" id="mileage" name="mileage" class="form-input" placeholder="เช่น 85000" min="0">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="license_plate">ทะเบียนรถ</label>
+                <input type="text" id="license_plate" name="license_plate" class="form-input" placeholder="เช่น กข-1234 กรุงเทพมหานคร">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="description">รายละเอียดปัญหา/บริการที่ต้องการ <span class="required">*</span></label>
+              <textarea id="description" name="description" class="form-textarea" placeholder="อธิบายปัญหา หรือบริการที่ต้องการรายละเอียดเท่าที่จะทำได้ เช่น สัญญาณเตือนเช็คเอนจิน ดังเสียงผิดปกติจากเครื่องยนต์ ต้องการตรวจสอบและซ่อมแซม" required rows="6"></textarea>
+              <span class="form-help">รองรับ Markdown: **ตัวหนา**, *ตัวเอียง*, รายการ - จะแสดงผลสวยงามในกระทู้</span>
+            </div>
+          </fieldset>
+
+          <!-- Budget & Location -->
+          <fieldset class="form-section">
+            <legend class="section-legend">งบประมาณและที่ตั้ง</legend>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="budget_min">งบประมาณขั้นต่ำ (บาท)</label>
+                <input type="number" id="budget_min" name="budget_min" class="form-input" placeholder="0" min="0" step="100">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="budget_max">งบประมาณสูงสุด (บาท)</label>
+                <input type="number" id="budget_max" name="budget_max" class="form-input" placeholder="ไม่ระบุ" min="0" step="100">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="preferred_location">สถานที่ต้องการให้บริการ</label>
+              <select id="preferred_location" name="preferred_location" class="form-select">
+                <option value="my_location">ที่อยู่ของฉัน (จากโปรไฟล์)</option>
+                <option value="provider_location">สถานที่ของผู้ให้บริการ</option>
+                <option value="other">สถานที่อื่น (ระบุในรายละเอียด)</option>
+              </select>
+            </div>
+
+            <fieldset class="form-group">
+              <legend class="form-label">ที่ตั้งของคุณ <span class="required">*</span></legend>
+              <div class="form-row">
+                <div>
+                  <label class="form-label" for="province">จังหวัด <span class="required">*</span></label>
+                  <select id="province" name="province" class="form-select" required>
+                    <option value="">เลือกจังหวัด</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label" for="district">อำเภอ/เขต <span class="required">*</span></label>
+                  <select id="district" name="district" class="form-select" required disabled>
+                    <option value="">เลือกอำเภอ/เขต</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div>
+                  <label class="form-label" for="subdistrict">ตำบล/แขวง</label>
+                  <select id="subdistrict" name="subdistrict" class="form-select" disabled>
+                    <option value="">เลือกตำบล/แขวง</option>
+                  </select>
+                </div>
+              </div>
+            </fieldset>
+          </fieldset>
+
+          <!-- Images -->
+          <fieldset class="form-section">
+            <legend class="section-legend">รูปภาพ (สูงสุด 5 รูป, ไฟล์ละไม่เกิน 5MB)</legend>
+
+            <div class="image-upload" id="image-upload">
+              <input type="file" id="images" name="images" accept="image/*" multiple hidden>
+              <svg class="image-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              <p class="image-upload-text">คลิกหรือลากไฟล์รูปภาพมาวางที่นี่</p>
+              <p class="image-upload-hint">รองรับ JPG, PNG, WebP • สูงสุด 5 รูป • ไฟล์ละ ≤ 5MB • จะบีบอัดอัตโนมัติ</p>
+            </div>
+
+            <div class="image-previews" id="image-previews" role="list" aria-label="ภาพที่เลือก"></div>
+          </fieldset>
+
+          <!-- Submit -->
+          <div class="form-actions">
+            <a href="/pages/browse.html" class="btn btn-outline">ยกเลิก</a>
+            <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">โพสต์กระทู้</button>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <footer id="site-footer"></footer>
+  </div>
+
+  <script type="module">
+    import { initAuth, supabase, showToast, isAuthenticated, THAI_PROVINCES, THAI_DISTRICTS, THAI_SUBDISTRICTS, VEHICLE_TYPES, SERVICE_TYPES, URGENCY_LEVELS } from '/js/auth.js';
+
+    let selectedFiles = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initAuth();
+
+      // Check auth
+      if (!isAuthenticated()) {
+        showToast('กรุณาเข้าสู่ระบบก่อน', 'warning');
+        setTimeout(() => {
+          window.location.href = '/pages/login.html?redirect=' + encodeURIComponent(window.location.href);
+        }, 1500);
+        return;
+      }
+
+      // Load shared components
+      const [headerRes, footerRes] = await Promise.all([
+        fetch('/header.html'),
+        fetch('/footer.html')
+      ]);
+      document.getElementById('site-header').innerHTML = await headerRes.text();
+      document.getElementById('site-footer').innerHTML = await footerRes.text();
+
+      // Initialize dropdowns
+      initDropdowns();
+      initLocationDropdowns();
+      initImageUpload();
+
+      // Form submit
+      document.getElementById('create-post-form').addEventListener('submit', handleSubmit);
+
+      // Load user profile for default location
+      loadUserLocation();
+    });
+
+    function initDropdowns() {
+      // Vehicle types
+      const vehicleSelect = document.getElementById('vehicle_type');
+      VEHICLE_TYPES.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.id;
+        opt.textContent = v.name;
+        vehicleSelect.appendChild(opt);
+      });
+
+      // Service types
+      const serviceSelect = document.getElementById('service_type');
+      SERVICE_TYPES.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = s.name;
+        serviceSelect.appendChild(opt);
+      });
+
+      // Urgency
+      const urgencySelect = document.getElementById('urgency');
+      URGENCY_LEVELS.forEach(u => {
+        const opt = document.createElement('option');
+        opt.value = u.id;
+        opt.textContent = u.name;
+        urgencySelect.appendChild(opt);
+      });
+    }
+
+    function initLocationDropdowns() {
+      const provinceSelect = document.getElementById('province');
+      const districtSelect = document.getElementById('district');
+      const subdistrictSelect = document.getElementById('subdistrict');
+
+      THAI_PROVINCES.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        provinceSelect.appendChild(opt);
+      });
+
+      provinceSelect.addEventListener('change', () => {
+        const province = provinceSelect.value;
+        districtSelect.innerHTML = '<option value="">เลือกอำเภอ/เขต</option>';
+        districtSelect.disabled = !province;
+        subdistrictSelect.innerHTML = '<option value="">เลือกตำบล/แขวง</option>';
+        subdistrictSelect.disabled = true;
+
+        if (province && THAI_DISTRICTS[province]) {
+          THAI_DISTRICTS[province].forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d;
+            opt.textContent = d;
+            districtSelect.appendChild(opt);
+          });
+        }
+      });
+
+      districtSelect.addEventListener('change', () => {
+        const province = provinceSelect.value;
+        const district = districtSelect.value;
+        subdistrictSelect.innerHTML = '<option value="">เลือกตำบล/แขวง</option>';
+        subdistrictSelect.disabled = !district;
+
+        if (district && THAI_SUBDISTRICTS[province]?.[district]) {
+          THAI_SUBDISTRICTS[province][district].forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s;
+            opt.textContent = s;
+            subdistrictSelect.appendChild(opt);
+          });
+        }
+      });
+    }
+
+    async function loadUserLocation() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('province, district, subdistrict')
+        .eq('id', user.id)
+        .single();
+
+      if (profile) {
+        if (profile.province) {
+          document.getElementById('province').value = profile.province;
+          document.getElementById('province').dispatchEvent(new Event('change'));
+
+          setTimeout(() => {
+            if (profile.district) {
+              document.getElementById('district').value = profile.district;
+              document.getElementById('district').dispatchEvent(new Event('change'));
+
+              setTimeout(() => {
+                if (profile.subdistrict) {
+                  document.getElementById('subdistrict').value = profile.subdistrict;
+                }
+              }, 100);
+            }
+          }, 100);
+        }
+      }
+    }
+
+    function initImageUpload() {
+      const uploadArea = document.getElementById('image-upload');
+      const fileInput = document.getElementById('images');
+      const previews = document.getElementById('image-previews');
+
+      // Click to open file dialog
+      uploadArea.addEventListener('click', () => fileInput.click());
+
+      // Drag and drop
+      uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('drag-over');
+      });
+
+      uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('drag-over');
+      });
+
+      uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('drag-over');
+        handleFiles(e.dataTransfer.files);
+      });
+
+      // File input change
+      fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+        fileInput.value = ''; // Reset to allow same file again
+      });
+
+      function handleFiles(files) {
+        const validFiles = Array.from(files).filter(file => {
+          if (!file.type.startsWith('image/')) {
+            showToast(`"${file.name}" ไม่ใช่ไฟล์รูปภาพ`, 'error');
+            return false;
+          }
+          if (file.size > 5 * 1024 * 1024) {
+            showToast(`"${file.name}" ขนาดใหญ่เกิน 5MB`, 'error');
+            return false;
+          }
+          return true;
+        });
+
+        if (selectedFiles.length + validFiles.length > 5) {
+          showToast('อัปโหลดได้สูงสุด 5 รูป', 'error');
+          return;
+        }
+
+        validFiles.forEach(file => {
+          selectedFiles.push(file);
+          renderPreview(file);
+        });
+      }
+
+      function renderPreview(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const idx = selectedFiles.length - 1;
+          const div = document.createElement('div');
+          div.className = 'image-preview';
+          div.dataset.index = idx;
+          div.innerHTML = `
+            <img src="${e.target.result}" alt="Preview">
+            <button type="button" class="image-preview-remove" aria-label="ลบรูป">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          `;
+
+          div.querySelector('.image-preview-remove').addEventListener('click', (e) => {
+            e.stopPropagation();
+            removeImage(idx);
+          });
+
+          previews.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function removeImage(index) {
+        selectedFiles.splice(index, 1);
+        // Re-render all previews with correct indices
+        previews.innerHTML = '';
+        selectedFiles.forEach((file, i) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const div = document.createElement('div');
+            div.className = 'image-preview';
+            div.dataset.index = i;
+            div.innerHTML = `
+              <img src="${e.target.result}" alt="Preview">
+              <button type="button" class="image-preview-remove" aria-label="ลบรูป">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            `;
+            div.querySelector('.image-preview-remove').addEventListener('click', (e) => {
+              e.stopPropagation();
+              removeImage(i);
+            });
+            previews.appendChild(div);
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const submitBtn = document.getElementById('submit-btn');
+      const originalText = submitBtn.textContent;
+
+      // Validate
+      if (!validateForm(form)) return;
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner spinner-sm"></span> กำลังโพสต์...';
+
+      try {
+        const formData = new FormData(form);
+        const { data: { user } } = await supabase.auth.getUser();
+
+        // Upload images first
+        let imageUrls = [];
+        for (const file of selectedFiles) {
+          const url = await uploadImage(file, user.id);
+          if (url) imageUrls.push(url);
+        }
+
+        // Create post
+        const { data: post, error } = await supabase
+          .from('posts')
+          .insert({
+            user_id: user.id,
+            title: formData.get('title').trim(),
+            description: formData.get('description').trim(),
+            vehicle_type: formData.get('vehicle_type'),
+            service_type: formData.get('service_type'),
+            urgency: formData.get('urgency'),
+            brand: formData.get('brand') || null,
+            year: formData.get('year') ? parseInt(formData.get('year')) : null,
+            mileage: formData.get('mileage') ? parseInt(formData.get('mileage')) : null,
+            license_plate: formData.get('license_plate') || null,
+            budget_min: formData.get('budget_min') ? parseInt(formData.get('budget_min')) : null,
+            budget_max: formData.get('budget_max') ? parseInt(formData.get('budget_max')) : null,
+            preferred_location: formData.get('preferred_location'),
+            province: formData.get('province'),
+            district: formData.get('district'),
+            subdistrict: formData.get('subdistrict') || null,
+            images: imageUrls,
+            status: 'open'
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        showToast('สร้างกระทู้สำเร็จ!', 'success');
+        setTimeout(() => {
+          window.location.href = `/pages/post.html?id=${post.id}`;
+        }, 1000);
+      } catch (err) {
+        console.error('Create post error:', err);
+        showToast(err.message, 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    }
+
+    async function uploadImage(file, userId) {
+      // Compress image to WebP
+      const compressedBlob = await compressImage(file);
+      if (!compressedBlob) return null;
+
+      const fileName = `${userId}/${Date.now()}.webp`;
+
+      const { error } = await supabase.storage
+        .from('post-images')
+        .upload(fileName, compressedBlob, {
+          contentType: 'image/webp',
+          upsert: false
+        });
+
+      if (error) {
+        console.error('Upload error:', error);
+        return null;
+      }
+
+      const { data } = supabase.storage
+        .from('post-images')
+        .getPublicUrl(fileName);
+
+      return data.publicUrl;
+    }
+
+    function compressImage(file) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        img.onload = () => {
+          // Max width 1920px
+          const maxWidth = 1920;
+          let { width, height } = img;
+
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob((blob) => {
+            resolve(blob);
+          }, 'image/webp', 0.8);
+        };
+
+        img.onerror = () => resolve(null);
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
+    function validateForm(form) {
+      const requiredFields = ['title', 'vehicle_type', 'service_type', 'urgency', 'description', 'province', 'district'];
+
+      for (const field of requiredFields) {
+        const input = form.querySelector(`[name="${field}"]`);
+        if (!input || !input.value.trim()) {
+          showToast(`กรุณากรอก${input?.labels?.[0]?.textContent || field}`, 'error');
+          input?.focus();
+          return false;
+        }
+      }
+
+      if (selectedFiles.length === 0) {
+        // Images are optional, but warn
+        if (!confirm('คุณไม่ได้เลือกรูปภาพ ต้องการดำเนินการต่อหรือไม่?')) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+  </script>
+
+  <style>
+    .create-post-page {
+      padding: var(--space-8) 0 var(--space-16);
+    }
+
+    .page-header {
+      margin-bottom: var(--space-8);
+    }
+
+    .page-header h1 {
+      font-size: var(--font-size-3xl);
+      font-weight: var(--font-weight-bold);
+      margin-bottom: var(--space-2);
+    }
+
+    .page-header p {
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-lg);
+    }
+
+    .create-post-form {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+    }
+
+    .form-section {
+      border: none;
+      padding: 0;
+      margin-bottom: var(--space-8);
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: var(--space-6);
+    }
+
+    .form-section:last-of-type {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .section-legend {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text);
+      margin-bottom: var(--space-4);
+      padding-bottom: var(--space-2);
+      border-bottom: 2px solid var(--color-primary);
+      display: inline-block;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-3);
+      margin-top: var(--space-8);
+      padding-top: var(--space-6);
+      border-top: 1px solid var(--color-border);
+    }
+
+    @media (max-width: 639px) {
+      .create-post-form {
+        padding: var(--space-4);
+      }
+    }
+  </style>
+</body>
+</html>

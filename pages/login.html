@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เข้าสู่ระบบ - VehicleService Forum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <script type="importmap" src="/importmap.json"></script>
+</head>
+<body>
+  <div id="app">
+    <header id="site-header"></header>
+
+    <main id="main-content" class="auth-page">
+      <div class="container">
+        <div class="auth-card">
+          <div class="auth-header">
+            <a href="/" class="header-brand" style="justify-content: center;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M19 17h2c.6 0 1-.4 1-1v-4c0-.6-.4-1-1-1H5c-.6 0-1 .4-1 1v4c0 .6.4 1 1 1h2"></path>
+                <path d="M9 17V9.5C9 7 11 5 13.5 5S18 7 18 9.5V17"></path>
+                <path d="M12 17v-5"></path>
+              </svg>
+              VehicleService
+            </a>
+            <h1>เข้าสู่ระบบ</h1>
+            <p>กรอกอีเมลและรหัสผ่านเพื่อเข้าสู่ระบบ</p>
+          </div>
+
+          <form id="login-form" class="auth-form" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="email">อีเมล <span class="required">*</span></label>
+              <input type="email" id="email" name="email" class="form-input" placeholder="you@example.com" required autocomplete="email">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="password">รหัสผ่าน <span class="required">*</span></label>
+              <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+
+            <div class="form-group">
+              <label class="form-checkbox">
+                <input type="checkbox" name="remember" id="remember">
+                <span>จดจำการเข้าสู่ระบบ</span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg">เข้าสู่ระบบ</button>
+          </form>
+
+          <div class="auth-footer">
+            <p>ยังไม่มีบัญชี? <a href="/pages/register.html">สมัครสมาชิก</a></p>
+            <p><a href="/pages/forgot-password.html" class="btn-link">ลืมรหัสผ่าน?</a></p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer id="site-footer"></footer>
+  </div>
+
+  <script type="module">
+    import { initAuth, signIn, showToast } from '/js/auth.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initAuth();
+
+      // Load shared components
+      const [headerRes, footerRes] = await Promise.all([
+        fetch('/header.html'),
+        fetch('/footer.html')
+      ]);
+      document.getElementById('site-header').innerHTML = await headerRes.text();
+      document.getElementById('site-footer').innerHTML = await footerRes.text();
+
+      const form = document.getElementById('login-form');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner spinner-sm"></span> กำลังเข้าสู่ระบบ...';
+
+        try {
+          const formData = new FormData(form);
+          const email = formData.get('email');
+          const password = formData.get('password');
+
+          await signIn(email, password);
+          showToast('เข้าสู่ระบบสำเร็จ', 'success');
+
+          // Redirect to intended page or dashboard
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirect = urlParams.get('redirect') || '/pages/dashboard.html';
+          setTimeout(() => window.location.href = redirect, 1000);
+        } catch (err) {
+          console.error('Login error:', err);
+          showToast(err.message || 'เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบข้อมูล', 'error');
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

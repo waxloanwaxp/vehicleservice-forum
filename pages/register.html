@@ -380,12 +380,19 @@
       const radioSeeker = document.getElementById('role-seeker');
       const radioProvider = document.getElementById('role-provider');
 
+      console.log('Radio seeker:', radioSeeker);
+      console.log('Radio provider:', radioProvider);
+      console.log('Options found:', options.length);
+
       options.forEach(option => {
-        option.addEventListener('click', () => {
+        option.addEventListener('click', (e) => {
+          console.log('Role option clicked:', option.dataset.role);
           const role = option.dataset.role;
           if (role === 'seeker') {
+            console.log('Setting seeker checked');
             radioSeeker.checked = true;
           } else {
+            console.log('Setting provider checked');
             radioProvider.checked = true;
           }
           options.forEach(o => o.classList.remove('selected'));
@@ -398,6 +405,17 @@
             e.preventDefault();
             option.click();
           }
+        });
+      });
+
+      // Also listen for direct radio changes
+      const radios = document.querySelectorAll('input[name="role"]');
+      radios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          console.log('Radio changed:', radio.value);
+          options.forEach(o => o.classList.remove('selected'));
+          const selectedOption = document.querySelector(`.role-option[data-role="${radio.value}"]`);
+          if (selectedOption) selectedOption.classList.add('selected');
         });
       });
     }

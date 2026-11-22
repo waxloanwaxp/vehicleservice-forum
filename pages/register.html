@@ -30,7 +30,7 @@
             <p>เลือกประเภทบัญชีและกรอกข้อมูลเพื่อเริ่มใช้งาน</p>
           </div>
 
-          <!-- Role Selection -->
+          <!-- Role Selection - Horizontal Layout -->
           <div class="role-selector" role="radiogroup" aria-label="เลือกประเภทบัญชี">
             <input type="radio" id="role-seeker" name="role" value="seeker" checked hidden>
             <input type="radio" id="role-provider" name="role" value="provider" hidden>
@@ -135,6 +135,15 @@
             </fieldset>
 
             <div class="form-group">
+              <label class="form-label" for="preferred_location">สถานที่ต้องการให้บริการ</label>
+              <select id="preferred_location" name="preferred_location" class="form-select">
+                <option value="my_location">ที่อยู่ของฉัน (จากโปรไฟล์)</option>
+                <option value="provider_location">สถานที่ของผู้ให้บริการ</option>
+                <option value="other">สถานที่อื่น (ระบุในรายละเอียด)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
               <label class="form-checkbox">
                 <input type="checkbox" name="terms" id="terms" required>
                 <span>ฉันยอมรับ <a href="/pages/terms.html" target="_blank">เงื่อนไขการใช้งาน</a> และ <a href="/pages/privacy.html" target="_blank">นโยบายความเป็นส่วนตัว</a> <span class="required">*</span></span>
@@ -156,6 +165,11 @@
 
   <script type="module">
     import { initAuth, signUp, showToast, THAI_PROVINCES, THAI_DISTRICTS, THAI_SUBDISTRICTS } from '/js/auth.js';
+
+    // Inline the data to ensure it's available
+    const PROVINCES = THAI_PROVINCES;
+    const DISTRICTS = THAI_DISTRICTS;
+    const SUBDISTRICTS = THAI_SUBDISTRICTS;
 
     document.addEventListener('DOMContentLoaded', async () => {
       await initAuth();
@@ -250,7 +264,7 @@
       const subdistrictSelect = document.getElementById('subdistrict');
 
       // Load provinces
-      THAI_PROVINCES.forEach(province => {
+      PROVINCES.forEach(province => {
         const option = document.createElement('option');
         option.value = province;
         option.textContent = province;
@@ -265,8 +279,8 @@
         subdistrictSelect.innerHTML = '<option value="">เลือกตำบล/แขวง</option>';
         subdistrictSelect.disabled = true;
 
-        if (province && THAI_DISTRICTS[province]) {
-          THAI_DISTRICTS[province].forEach(district => {
+        if (province && DISTRICTS[province]) {
+          DISTRICTS[province].forEach(district => {
             const option = document.createElement('option');
             option.value = district;
             option.textContent = district;
@@ -282,8 +296,8 @@
         subdistrictSelect.innerHTML = '<option value="">เลือกตำบล/แขวง</option>';
         subdistrictSelect.disabled = !district;
 
-        if (district && THAI_SUBDISTRICTS[province]?.[district]) {
-          THAI_SUBDISTRICTS[province][district].forEach(subdistrict => {
+        if (district && SUBDISTRICTS[province]?.[district]) {
+          SUBDISTRICTS[province][district].forEach(subdistrict => {
             const option = document.createElement('option');
             option.value = subdistrict;
             option.textContent = subdistrict;

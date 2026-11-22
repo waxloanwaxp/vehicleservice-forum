@@ -5,9 +5,9 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase configuration - REPLACE WITH YOUR VALUES
-const SUPABASE_URL = 'https://your-project.supabase.co';
-const SUPABASE_ANON_KEY = 'your-anon-key';
+// Supabase configuration - Production
+const SUPABASE_URL = 'https://ffzblaxuqjkqrdrcdnhg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmemJsYXh1cWprcXJkcmNkbmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyNzY3MDEsImV4cCI6MjExMDg1MjcwMX0.V66tqTzsW5pSnx22O62br6myaM2QEn3Rs3G8LWxeKdI';
 
 // Create Supabase client
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
